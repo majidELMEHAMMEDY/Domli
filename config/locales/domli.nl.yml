@@ -1,0 +1,41 @@
+# DOMLI: Dutch strings missing from nl.yml (kept separate so upstream/Crowdin syncs of nl.yml do not conflict)
+nl:
+  conversations:
+    messages:
+      whatsapp:
+        request_contact_info: 'Wilt u uw telefoonnummer met ons delen?'
+    reply:
+      greeting: 'Hallo %{name},'
+      new_messages: 'U hebt nieuwe berichten in uw gesprek.'
+      contact_label: 'U'
+      bot_label: 'Bot'
+      attachments: 'Bijlagen:'
+      rate_conversation_html: 'Klik %{link} om het gesprek te beoordelen.'
+      rate_conversation_link: 'hier'
+  installation:
+    onboarding:
+      heading: 'Welkom bij Domli 👋'
+      name: 'Naam'
+      name_placeholder: 'Voer uw volledige naam in, bijv. Jan de Vries'
+      company: 'Bedrijfsnaam'
+      company_placeholder: 'Voer uw bedrijfsnaam in, bijv. Kapsalon De Vries'
+      email: 'Zakelijk e-mailadres'
+      email_placeholder: 'Voer uw zakelijke e-mailadres in, bijv. jan@devries.nl'
+      password: 'Wachtwoord'
+      password_placeholder: 'Voer een wachtwoord van minimaal 6 tekens in.'
+      subscribe: 'Ontvang productnieuws en updates.'
+      submit: 'Installatie afronden'
+  errors:
+    mfa:
+      setup_required: 'Uw account vereist tweestapsverificatie. Stel deze in om door te gaan met inloggen.'
+      enrollment_required: 'Dit account vereist tweestapsverificatie. Stel deze in bij uw profielinstellingen om API-toegang te herstellen.'
+      interactive_session_required: 'Instellingen voor tweestapsverificatie kunnen niet met een API-toegangstoken worden beheerd. Log in op het dashboard.'
+      enforced_cannot_disable: 'Tweestapsverificatie is verplicht voor uw account en kan niet worden uitgeschakeld.'
+    device_verification:
+      invalid_token: 'Ongeldig of verlopen verificatietoken, log opnieuw in om een nieuwe code te ontvangen'
+      invalid_code: 'Onjuiste code. Voer de 6-cijferige code in die we naar uw e-mail hebben gestuurd.'
+      expired: 'Verificatiecode verlopen, log opnieuw in om een nieuwe code te ontvangen'
+      locked: 'Te veel onjuiste codes, log opnieuw in om een nieuwe code te ontvangen'
+      stale: 'Uw account is gewijzigd sinds deze code is uitgegeven, log opnieuw in'
+      rate_limited: 'Te veel verificatiepogingen, probeer het later opnieuw of herstel uw wachtwoord'
+      code_field_required: 'Voer de 6-cijferige code uit uw e-mail in het verificatiecodeveld in, niet in het veld voor de back-upcode'

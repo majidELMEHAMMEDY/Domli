@@ -814,7 +814,8 @@
         "VIEW_CHANGES": "View unpublished changes",
         "DRAFT": "Draft",
         "ARCHIVE": "Archive",
-        "BACK_TO_ARTICLES": "Back to articles"
+        "BACK_TO_ARTICLES": "Back to articles",
+        "CREATE_IN_PROGRESS": "Het artikel wordt nog aangemaakt. Voeg zo meteen opnieuw bestanden toe."
       },
       "PENDING_CHANGES_POPOVER": {
         "TITLE": "Unpublished changes",
@@ -839,7 +840,14 @@
         "META_TITLE": "Meta title",
         "META_TITLE_PLACEHOLDER": "Add meta title",
         "META_TAGS": "Meta tags",
-        "META_TAGS_PLACEHOLDER": "Add meta tags"
+        "META_TAGS_PLACEHOLDER": "Add meta tags",
+        "SLUG": "Slug",
+        "SLUG_PLACEHOLDER": "Slug toevoegen",
+        "SLUG_USE_TITLE": "Titel als slug gebruiken",
+        "SLUG_WARNING": "De huidige URL werkt niet meer en bestaande links ernaar worden verbroken.",
+        "SLUG_UPDATE": "Bijwerken",
+        "SLUG_UPDATED": "Slug bijgewerkt. Het artikel is nu beschikbaar op de nieuwe URL.",
+        "SLUG_OPEN": "URL openen"
       },
       "API": {
         "ERROR": "Error while saving article"

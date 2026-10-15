@@ -272,13 +272,18 @@
       "MESSAGE_CLOUD": "You are not part of any accounts right now. If you think this is a mistake, please reach out to our support team.",
       "MESSAGE_SELF_HOSTED": "You are not part of any accounts right now. Please reach out to your administrator.",
       "LOGOUT": "Log out"
+    },
+    "IMPERSONATION": {
+      "MESSAGE": "U treedt op als {name} ({email}). Elke actie die u uitvoert is zichtbaar als deze gebruiker.",
+      "STOP": "Stoppen met optreden als gebruiker"
     }
   },
   "COMPONENTS": {
     "CODE": {
       "BUTTON_TEXT": "Kopiëren",
       "CODEPEN": "Open in CodePen",
-      "COPY_SUCCESSFUL": "Code succesvol naar het klembord gekopieerd "
+      "COPY_SUCCESSFUL": "Code succesvol naar het klembord gekopieerd ",
+      "COPY_ERROR": "Kopiëren naar het klembord is mislukt. Probeer het opnieuw."
     },
     "SHOW_MORE_BLOCK": {
       "SHOW_MORE": "Show More",
@@ -713,7 +718,8 @@
         "TITLE": "Service Provider Information",
         "TOOLTIP": "Copy these values and configure them in your Identity Provider to establish the SAML connection"
       }
-    }
+    },
+    "NO_SETTINGS_AVAILABLE": "Er zijn geen beveiligingsinstellingen beschikbaar voor deze installatie. Configureer de MFA-versleutelingssleutels om tweestapsverificatie af te dwingen."
   },
   "CONVERSATION_WORKFLOW": {
     "INDEX": {

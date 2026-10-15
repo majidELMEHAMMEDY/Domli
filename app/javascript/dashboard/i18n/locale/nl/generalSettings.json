@@ -121,6 +121,14 @@
       "FEATURES": {
         "INBOUND_EMAIL_ENABLED": "Conversation continuity with emails is enabled for your account.",
         "CUSTOM_EMAIL_DOMAIN_ENABLED": "You can receive emails in your custom domain now."
+      },
+      "ENFORCE_MFA": {
+        "TITLE": "Tweestapsverificatie afdwingen",
+        "NOTE": "Verplicht alle leden van dit account om tweestapsverificatie in te stellen. Leden zonder tweestapsverificatie worden bij hun volgende wachtwoordlogin gevraagd dit in te stellen. Inloggen via Google of SAML is uitgezonderd. API-toegangstokens van leden die geen tweestapsverificatie hebben ingesteld werken niet meer voor dit account totdat zij zich hebben aangemeld.",
+        "API": {
+          "SUCCESS": "Afdwingen van tweestapsverificatie bijgewerkt",
+          "ERROR": "Bijwerken van het afdwingen van tweestapsverificatie is mislukt"
+        }
       }
     },
     "UPDATE_CHATWOOT": "An update {latestChatwootVersion} for Domli is available. Please update your instance.",

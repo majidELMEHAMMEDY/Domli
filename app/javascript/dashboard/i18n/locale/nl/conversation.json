@@ -307,6 +307,10 @@
           "LABEL": "BCC",
           "PLACEHOLDER": "Emails separated by commas",
           "ERROR": "Please enter valid email addresses"
+        },
+        "SUBJECT": {
+          "LABEL": "Onderwerp",
+          "PLACEHOLDER": "Voer een onderwerp in"
         }
       },
       "UNDEFINED_VARIABLES": {
@@ -322,7 +326,10 @@
         "DISABLE_TOOLTIP": "Don't include quoted email thread",
         "REMOVE_PREVIEW": "Remove quoted email thread",
         "COLLAPSE": "Collapse preview",
-        "EXPAND": "Expand preview"
+        "EXPAND": "Expand preview",
+        "SHOW_TOOLTIP": "Ingekorte inhoud tonen",
+        "HIDE_TOOLTIP": "Ingekorte inhoud verbergen",
+        "REMOVE": "Geciteerde tekst verwijderen"
       }
     },
     "VISIBLE_TO_AGENTS": "Privéopmerking: alleen zichtbaar voor jou en je team",
@@ -381,7 +388,8 @@
           "outdated_information": "Outdated information",
           "other": "Other"
         }
-      }
+      },
+      "FORWARD_EMAIL": "E-mail doorsturen"
     },
     "SIDEBAR": {
       "CONTACT": "Contact",
@@ -401,6 +409,24 @@
       "UNMUTE": "Unmute mic",
       "VIEW_CHAT_HISTORY": "View chat history",
       "GO_TO_CONVERSATION": "Go to conversation thread"
+    },
+    "CONTACT_HISTORY": {
+      "OLDER": "Vorig gesprek",
+      "NEWER": "Volgend gesprek",
+      "OLDER_WITH": "Vorig gesprek met {name} · {time}",
+      "NEWER_WITH": "Volgend gesprek met {name} · {time}",
+      "CUSTOMER": "deze klant",
+      "REPLY_TO_OLDER": "Reageer op dit oudere gesprek",
+      "GO_TO_LATEST": "Ga naar het laatste gesprek"
+    },
+    "REQUEST_CONTACT_INFO": {
+      "ACTION": "Vraag de klant om zijn of haar WhatsApp-telefoonnummer te delen",
+      "PENDING_ACTION": "Verzoek om contactgegevens in behandeling",
+      "STATES": {
+        "PENDING": "Wachten op contactgegevens",
+        "SHARED": "Telefoonnummer gedeeld",
+        "IDENTITY_CONFLICT": "Telefoonnummer moet worden gecontroleerd"
+      }
     }
   },
   "EMAIL_TRANSCRIPT": {
@@ -529,7 +555,8 @@
     "BCC": "BCC",
     "CC": "CC",
     "SUBJECT": "Onderwerp",
-    "EXPAND": "Expand email"
+    "EXPAND": "Expand email",
+    "DATE": "Datum"
   },
   "CONVERSATION_PARTICIPANTS": {
     "SIDEBAR_MENU_TITLE": "Participating",
@@ -565,5 +592,13 @@
   },
   "GALLERY_VIEW": {
     "ERROR_DOWNLOADING": "Unable to download attachment. Please try again"
+  },
+  "FORWARD_EMAIL": {
+    "HEADER_TITLE": "---------- Doorgestuurd bericht ---------",
+    "TO_LABEL": "Aan:",
+    "TO_PLACEHOLDER": "Voer minimaal 2 tekens in om op e-mailadres te zoeken",
+    "MESSAGE_PLACEHOLDER": "Voeg een bericht toe (optioneel)",
+    "FORWARDED_TO": "Doorgestuurd naar {emails}",
+    "CONTACT_CANNOT_SEE": "{name} kan dit niet zien"
   }
 }

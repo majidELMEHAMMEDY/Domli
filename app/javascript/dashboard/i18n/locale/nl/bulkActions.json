@@ -41,6 +41,12 @@
       "UNASSIGN_TEAM_CONFIRMATION_LABEL": "Are you sure you want to unassign {n} conversation? | Are you sure you want to unassign {n} conversations?",
       "ASSIGN_SUCCESFUL": "Teams assigned successfully.",
       "ASSIGN_FAILED": "Toewijzen team mislukt, probeer het opnieuw."
+    },
+    "MACROS": {
+      "EXECUTE_MACRO": "Macro uitvoeren",
+      "EXECUTE_CONFIRMATION_LABEL": "Weet u zeker dat u {macroName} wilt uitvoeren op {n} gesprek? | Weet u zeker dat u {macroName} wilt uitvoeren op {n} gesprekken?",
+      "QUEUED": "Macro in de wachtrij voor {count} gesprek. | Macro in de wachtrij voor {count} gesprekken.",
+      "QUEUED_WITH_MISSING_ATTRIBUTES": "Macro in de wachtrij voor {count} gesprek. Er ontbreken verplichte kenmerken, dus het kan open blijven. | Macro in de wachtrij voor {count} gesprekken. Bij minstens één ontbreken verplichte kenmerken, dus het kan open blijven."
     }
   }
 }

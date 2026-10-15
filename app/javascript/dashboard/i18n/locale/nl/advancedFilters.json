@@ -42,7 +42,9 @@
       "isGreaterThan": "Is groter dan",
       "isLessThan": "Is minder dan",
       "daysBefore": "Is x dagen vóór",
-      "startsWith": "Begint met"
+      "startsWith": "Begint met",
+      "detects": "Detecteert",
+      "does_not_detect": "Detecteert niet"
     },
     "ATTRIBUTE_LABELS": {
       "TRUE": "Waar",

@@ -79,5 +79,14 @@
     "UPLOAD_ERROR": "Only MP4 files can be uploaded",
     "ADD": "Embed",
     "CANCEL": "Annuleren"
+  },
+  "FEATURE_ANNOUNCEMENT": {
+    "BADGE": "Nieuw",
+    "DISMISS": "Begrepen",
+    "PREVIOUS": "Vorige",
+    "NEXT": "Volgende",
+    "DISMISS_HINT": "Druk op {key} om te sluiten",
+    "ESCAPE_KEY": "Esc",
+    "CLOSE": "Sluiten"
   }
 }

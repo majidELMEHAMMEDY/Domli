@@ -47,7 +47,9 @@
       "REGENERATE": "Regenerate Backup Codes",
       "DISABLE_MFA": "Disable 2FA",
       "DISABLE_MFA_DESC": "Remove two-factor authentication from your account",
-      "DISABLE_BUTTON": "Disable Two-Factor Authentication"
+      "DISABLE_BUTTON": "Disable Two-Factor Authentication",
+      "ENFORCED_TITLE": "Vereist door uw account",
+      "ENFORCED_NOTE": "Uw account vereist tweestapsverificatie, dus u kunt dit hier niet uitschakelen. Neem contact op met uw beheerder als u hulp nodig hebt."
     },
     "LOW_BACKUP_CODES": {
       "MESSAGE": "You have {n} backup code remaining. Generate new codes to avoid getting locked out if you lose access to your authenticator. | You have {n} backup codes remaining. Generate new codes to avoid getting locked out if you lose access to your authenticator.",
@@ -110,6 +112,14 @@
       "CONTACT_DESC_CLOUD": "If you've lost access to both your authenticator app and backup codes, please reach out to Domli support for assistance.",
       "CONTACT_DESC_SELF_HOSTED": "If you've lost access to both your authenticator app and backup codes, please contact your administrator for assistance."
     },
-    "VERIFICATION_FAILED": "Verification failed. Please try again."
+    "VERIFICATION_FAILED": "Verification failed. Please try again.",
+    "EMAIL_TITLE": "Controleer uw e-mail",
+    "EMAIL_DESCRIPTION": "U logt in vanaf een nieuw apparaat.",
+    "ENTER_EMAIL_CODE": "Voer de 6-cijferige code uit uw e-mail in",
+    "REMEMBER_DEVICE": "Niet meer vragen op dit apparaat gedurende 30 dagen"
+  },
+  "MFA_ENFORCED_SETUP": {
+    "TITLE": "Tweestapsverificatie instellen",
+    "DESCRIPTION": "Uw account vereist tweestapsverificatie. Scan de QR-code met uw authenticator-app en voer de code in om door te gaan."
   }
 }
