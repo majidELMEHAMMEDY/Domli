@@ -2,7 +2,7 @@
 #   cp .env.production.example .env && edit .env
 #   docker compose -f docker-compose.production.yml up -d
 x-app: &app
-  image: ${DOMLI_IMAGE:-ghcr.io/OWNER/domli:latest}
+  image: ${DOMLI_IMAGE:-ghcr.io/majidelmehammedy/domli:latest}
   env_file: .env
   environment: &app-env
     RAILS_ENV: production
