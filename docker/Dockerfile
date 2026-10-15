@@ -153,3 +153,5 @@ COPY --from=pre-builder /app/.git_sha /app/.git_sha
 WORKDIR /app
 
 EXPOSE 3000
+
+ENV CW_EDITION="ce"

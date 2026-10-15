@@ -1,0 +1,13 @@
+# HTTPS certificates are issued and renewed automatically by Caddy.
+# Replace the domains if you use different ones.
+app.domli.nl {
+	encode gzip
+	reverse_proxy rails:3000
+}
+
+# Only needed if Chatwoot cannot call the bot on the internal address http://bot:3100
+bot.domli.nl {
+	@allowed path /webhook/* /health
+	reverse_proxy @allowed bot:3100
+	respond 404
+}

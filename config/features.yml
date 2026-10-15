@@ -41,7 +41,7 @@
   enabled: false
 - name: help_center
   display_name: Help Center
-  enabled: true
+  enabled: false
   help_url: https://chwt.app/hc/help-center
 - name: agent_bots
   display_name: Agent Bots
@@ -49,7 +49,7 @@
   help_url: https://chwt.app/hc/agent-bots
 - name: macros
   display_name: Macros
-  enabled: true
+  enabled: false
 - name: agent_management
   display_name: Agent Management
   enabled: true
@@ -70,7 +70,7 @@
   help_url: https://chwt.app/hc/custom-attributes
 - name: automations
   display_name: Automations
-  enabled: true
+  enabled: false
 - name: canned_responses
   display_name: Canned Responses
   enabled: true
@@ -90,7 +90,7 @@
   enabled: true
 - name: campaigns
   display_name: Campaigns
-  enabled: true
+  enabled: false
   help_url: https://chwt.app/hc/campaigns
 - name: reports
   display_name: Reports
@@ -159,7 +159,7 @@
   deprecated: true
 - name: contact_chatwoot_support_team
   display_name: Contact Chatwoot Support Team
-  enabled: true
+  enabled: false
   chatwoot_internal: true
 - name: shopify_integration
   display_name: Shopify Integration
@@ -231,17 +231,17 @@
   chatwoot_internal: true
 - name: companies
   display_name: Companies
-  enabled: true
+  enabled: false
 - name: channel_tiktok
   display_name: TikTok Channel
-  enabled: true
+  enabled: false
 - name: csat_review_notes
   display_name: CSAT Review Notes
   enabled: false
   premium: true
 - name: captain_tasks
   display_name: Captain Tasks
-  enabled: true
+  enabled: false
 - name: conversation_required_attributes
   display_name: Required Conversation Attributes
   enabled: false
@@ -306,6 +306,6 @@
   column: feature_flags_ext_1
 - name: mobile_voice_push
   display_name: Calls on mobile
-  enabled: true
+  enabled: false
   hidden: true
   column: feature_flags_ext_1

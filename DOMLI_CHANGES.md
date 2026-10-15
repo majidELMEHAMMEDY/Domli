@@ -1,7 +1,7 @@
 # Domli changes to upstream Chatwoot files
 
 Base: Chatwoot 4.18.0 (commit a0dfab928). Keep this list current so upstream merges stay easy.
-Domli-only folders (no merge conflicts): `branding/`, `docs/domli/`, `domli-bot/`, `NOTICE`, `DOMLI_CHANGES.md`.
+Domli-only files (no merge conflicts): `branding/`, `docs/domli/`, `domli-bot/`, `scripts/domli/`, `deployment/Caddyfile`, `docker-compose.production.yml`, `.env.production.example`, `.github/workflows/publish_domli_image.yml`, `config/locales/domli.nl.yml`, `NOTICE`, `DOMLI_CHANGES.md`.
 
 | Path | Change | Reason |
 |---|---|---|
@@ -14,6 +14,9 @@ Domli-only folders (no merge conflicts): `branding/`, `docs/domli/`, `domli-bot/
 | `theme/colors.js`, `components-next/icon/Logo.vue`, `layouts/vueapp.html.erb`, `layouts/mailer/base.liquid`, `devise/mailer/_confirmation_body.html.erb`, `superadmin_pages/.../Index.vue` | `#2781F6` -> `#00969C` | Brand color. |
 | `app/javascript/{dashboard,widget,survey}/i18n/locale/{en,nl}`, `config/locales/{en,nl,devise.en,devise.nl}.yml` | "Chatwoot" -> "Domli" in strings; terms/privacy URLs | Rebrand. Other languages untouched (Crowdin). |
 | mailers, `.liquid` mail templates, super admin views, `mfa/management_service.rb`, `push_test_service.rb`, leadsquared services, `config/initializers/devise.rb` | Hardcoded "Chatwoot" / sender -> Domli / `noreply@domli.nl` | Rebrand. |
+| `config/features.yml` | `enabled: false` for help_center, macros, automations, campaigns, companies, captain_tasks, contact_chatwoot_support_team, channel_tiktok, mobile_voice_push | Simpler default feature set for new small-business accounts (flags only affect new accounts). |
+| `docker/Dockerfile` | `ENV CW_EDITION="ce"` appended | Mark the image as Community edition. |
+| `.dockerignore` | Ignore `domli-bot`, `docs`, `branding` | Smaller build context. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 
 ## Intentionally not rebranded

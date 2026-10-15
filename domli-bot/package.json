@@ -1,0 +1,16 @@
+{
+  "name": "domli-bot",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Domli AI assistant and appointments bot. Runs as a Chatwoot agent bot via webhook.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.40.0",
+    "fast-xml-parser": "^4.5.0"
+  }
+}

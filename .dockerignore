@@ -15,3 +15,8 @@ vendor/bundle
 .DS_Store
 *.swp
 *~
+
+# Domli
+domli-bot
+docs
+branding

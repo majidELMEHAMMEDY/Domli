@@ -1,0 +1,13 @@
+{
+  "1": {
+    "businessName": "Kapsalon De Vries",
+    "enabled": true,
+    "mode": "draft",
+    "chatwootBotToken": "AGENT_BOT_ACCESS_TOKEN",
+    "monthlyTokenCap": 200000,
+    "appointments": {
+      "provider": "link",
+      "bookingUrl": "https://kapsalondevries.onlineafspraken.nl"
+    }
+  }
+}

@@ -1,0 +1,7 @@
+node_modules
+.env
+data/accounts.json
+data/usage.json
+data/tokens.log
+knowledge/*.md
+!knowledge/example.md
