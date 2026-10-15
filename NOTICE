@@ -1,0 +1,8 @@
+Domli is based on Chatwoot Community Edition (https://github.com/chatwoot/chatwoot),
+Copyright (c) 2017-2026 Chatwoot Inc., licensed under the MIT License (see LICENSE).
+
+The "enterprise/" directory of upstream Chatwoot is licensed separately and is NOT
+part of Domli. It has been removed from this repository.
+
+"Chatwoot" is a trademark of Chatwoot Inc. Domli is an independent product and is
+not affiliated with or endorsed by Chatwoot Inc.
