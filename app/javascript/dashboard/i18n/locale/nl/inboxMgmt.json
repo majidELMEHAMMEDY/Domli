@@ -781,7 +781,7 @@
       },
       "TRANSCRIPTION": {
         "LABEL": "Transcribe recordings",
-        "DESCRIPTION": "Turn each recording into a text transcript. Uses Captain and requires audio transcription to be enabled for the account."
+        "DESCRIPTION": "Turn each recording into a text transcript. Uses Domli AI and requires audio transcription to be enabled for the account."
       }
     },
     "WHATSAPP_CALLING": {

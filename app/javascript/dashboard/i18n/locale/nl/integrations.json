@@ -23,10 +23,10 @@
     "SEARCH_PLACEHOLDER": "Search integrations...",
     "NO_RESULTS": "No integrations found matching your search",
     "CAPTAIN": {
-      "DISABLED": "Captain is not enabled on your account.",
+      "DISABLED": "Domli AI is not enabled on your account.",
       "CLICK_HERE_TO_CONFIGURE": "Click here to configure",
-      "LOADING_CONSOLE": "Loading Captain Console...",
-      "FAILED_TO_LOAD_CONSOLE": "Failed to load Captain Console. Please refresh and try again."
+      "LOADING_CONSOLE": "Loading Domli AI Console...",
+      "FAILED_TO_LOAD_CONSOLE": "Failed to load Domli AI Console. Please refresh and try again."
     },
     "WEBHOOK": {
       "SUBSCRIBED_EVENTS": "Subscribed Events",
@@ -413,12 +413,12 @@
     }
   },
   "CAPTAIN": {
-    "NAME": "Captain",
+    "NAME": "Domli AI",
     "HEADER_KNOW_MORE": "Meer weten",
     "OVERVIEW": {
       "HEADER": "Overview",
       "WELCOME": {
-        "LABEL": "Captain summary",
+        "LABEL": "Domli AI summary",
         "LOADING": "Generating summary…"
       },
       "INBOX_BANNER": {
@@ -439,20 +439,20 @@
       "METRICS": {
         "HANDLED": {
           "LABEL": "Conversations handled",
-          "HINT": "Conversations where Captain replied to the customer or handed the conversation to your team."
+          "HINT": "Conversations where Domli AI replied to the customer or handed the conversation to your team."
         },
         "AUTO_RESOLUTION": {
           "LABEL": "Auto-resolution rate",
-          "HINT": "The share of handled conversations Captain resolved without help from your team. Higher means Captain resolved more on its own."
+          "HINT": "The share of handled conversations Domli AI resolved without help from your team. Higher means Domli AI resolved more on its own."
         },
         "HANDOFF": {
           "LABEL": "Handoff rate",
-          "HINT": "The share of handled conversations Captain passed to your team. Lower means fewer conversations needed an agent."
+          "HINT": "The share of handled conversations Domli AI passed to your team. Lower means fewer conversations needed an agent."
         },
         "HOURS_SAVED": {
           "LABEL": "Time saved",
-          "HINT": "An estimate of how much agent reply time Captain saved.",
-          "NOTE": "Based on two minutes saved for each public Captain reply."
+          "HINT": "An estimate of how much agent reply time Domli AI saved.",
+          "NOTE": "Based on two minutes saved for each public Domli AI reply."
         },
         "REOPEN": {
           "LABEL": "Reopen rate",
@@ -461,7 +461,7 @@
         },
         "DEPTH": {
           "LABEL": "Messages / conversation",
-          "HINT": "The average number of replies Captain sent in each conversation it handled.",
+          "HINT": "The average number of replies Domli AI sent in each conversation it handled.",
           "NOTE": "A lower number can mean quicker answers, but complex questions may need more replies."
         }
       },
@@ -480,8 +480,8 @@
       },
       "LINKS": {
         "DOCS": {
-          "TITLE": "Captain docs",
-          "DESCRIPTION": "Guides and how-tos for Captain"
+          "TITLE": "Domli AI docs",
+          "DESCRIPTION": "Guides and how-tos for Domli AI"
         },
         "PLAYGROUND": {
           "TITLE": "Speelplaats",
@@ -497,7 +497,7 @@
         "SUMMARY": {
           "GREETING": "Hello, {name}!",
           "DEFAULT_NAME": "there",
-          "EMPTY": "Captain's performance summary will appear here when enough activity is available.",
+          "EMPTY": "Domli AI's performance summary will appear here when enough activity is available.",
           "PREVIOUS": "Previous summary point",
           "NEXT": "Next summary point"
         },
@@ -511,13 +511,13 @@
             "LABEL": "Saved in agent effort and time"
           },
           "DURABLE": {
-            "LABEL": "Captain resolutions remained closed",
+            "LABEL": "Domli AI resolutions remained closed",
             "HINT": "The share of Captain-resolved conversations that were still closed seven days later.",
             "NOTE": "Only resolutions old enough to observe for seven days are included."
           },
           "MEDIAN_RESOLUTION": {
             "LABEL": "Median resolution time",
-            "HINT": "The typical time from when a conversation reached Captain until it was resolved.",
+            "HINT": "The typical time from when a conversation reached Domli AI until it was resolved.",
             "NOTE": "Lower means customers generally got resolved sooner."
           },
           "DEPTH": {
@@ -526,10 +526,10 @@
           "OF_TOTAL": "of {total}"
         },
         "RESOLUTION_FLOW": {
-          "ARIA_LABEL": "Flow of handled conversations through Captain and team outcomes",
+          "ARIA_LABEL": "Flow of handled conversations through Domli AI and team outcomes",
           "NODES": {
             "HANDLED": "Handled",
-            "RESOLVED_BY_CAPTAIN": "Resolved by Captain",
+            "RESOLVED_BY_CAPTAIN": "Resolved by Domli AI",
             "HANDED_OFF": "Handed off",
             "CLOSED_WITH_TEAM": "Closed with team",
             "REOPENED": "Reopened in 7d",
@@ -556,16 +556,16 @@
           "CURRENT_PERIOD": "Current period",
           "PREVIOUS_PERIOD": "Previous period",
           "HANDLED": "Handled",
-          "RESOLVED": "Resolved by Captain",
+          "RESOLVED": "Resolved by Domli AI",
           "ARIA_LABEL": "Handled and Captain-resolved conversations by reporting period",
-          "RATE_ARIA_LABEL": "Current and previous Captain resolution rates"
+          "RATE_ARIA_LABEL": "Current and previous Domli AI resolution rates"
         },
         "CSAT": {
-          "TITLE": "Captain CSAT",
+          "TITLE": "Domli AI CSAT",
           "AUTONOMOUS": "Captain-resolved conversations",
-          "AUTONOMOUS_HINT": "The average customer rating for conversations Captain resolved without help from your team.",
+          "AUTONOMOUS_HINT": "The average customer rating for conversations Domli AI resolved without help from your team.",
           "ASSISTED": "Captain-assisted conversations",
-          "ASSISTED_HINT": "The average customer rating when Captain helped before your team resolved the conversation.",
+          "ASSISTED_HINT": "The average customer rating when Domli AI helped before your team resolved the conversation.",
           "VS_HUMANS": "{value} vs humans"
         },
         "USAGE": {
@@ -595,7 +595,7 @@
       "KICK_OFF_MESSAGE": "Snelle samenvatting nodig, eerdere gesprekken bekijken of een beter antwoord opstellen? Copilot helpt je sneller.",
       "SEND_MESSAGE": "Verstuur bericht...",
       "EMPTY_MESSAGE": "Er is een fout opgetreden bij het genereren van het antwoord. Probeer het opnieuw.",
-      "LOADER": "Captain is aan het denken",
+      "LOADER": "Domli AI is aan het denken",
       "YOU": "Jij",
       "USE": "Gebruik dit",
       "RESET": "Resetten",
@@ -633,20 +633,20 @@
       "CREDIT_NOTE": "Berichten die hier worden verzonden, tellen mee voor je Captain-tegoed."
     },
     "PAYWALL": {
-      "TITLE": "Upgrade om Captain AI te gebruiken",
-      "AVAILABLE_ON": "Captain is niet beschikbaar op het gratis abonnement.",
+      "TITLE": "Upgrade om Domli AI te gebruiken",
+      "AVAILABLE_ON": "Domli AI is niet beschikbaar op het gratis abonnement.",
       "UPGRADE_PROMPT": "Upgrade je abonnement om toegang te krijgen tot onze assistenten, copilot en meer.",
       "UPGRADE_NOW": "Upgrade now",
       "CANCEL_ANYTIME": "You can change or cancel your plan anytime"
     },
     "ENTERPRISE_PAYWALL": {
-      "AVAILABLE_ON": "Captain AI is alleen beschikbaar in de Enterprise-abonnementen.",
+      "AVAILABLE_ON": "Domli AI is alleen beschikbaar in de Enterprise-abonnementen.",
       "UPGRADE_PROMPT": "Upgrade je abonnement om toegang te krijgen tot onze assistenten, copilot en meer.",
       "ASK_ADMIN": "Please reach out to your administrator for the upgrade."
     },
     "BANNER": {
-      "RESPONSES": "Je hebt meer dan 80% van je antwoordlimiet gebruikt. Om Captain AI te blijven gebruiken, upgrade je jouw plan.",
-      "DOCUMENTS": "Documentlimiet bereikt. Upgrade om Captain AI te blijven gebruiken."
+      "RESPONSES": "Je hebt meer dan 80% van je antwoordlimiet gebruikt. Om Domli AI te blijven gebruiken, upgrade je jouw plan.",
+      "DOCUMENTS": "Documentlimiet bereikt. Upgrade om Domli AI te blijven gebruiken."
     },
     "FORM": {
       "CANCEL": "Annuleren",
@@ -708,28 +708,28 @@
         },
         "INACTIVITY_RESOLUTION": {
           "TITLE": "When customers stop replying",
-          "DESCRIPTION": "Choose how Captain handles the conversation.",
+          "DESCRIPTION": "Choose how Domli AI handles the conversation.",
           "MODE_LABEL": "Action when the customer stops replying",
           "REVIEW_AFTER": "Review after",
           "RESOLVE_AFTER": "Resolve after",
-          "ALWAYS_WARNING": "Captain will resolve every conversation after the selected time without reviewing it. Some conversations that still need help may be closed.",
+          "ALWAYS_WARNING": "Domli AI will resolve every conversation after the selected time without reviewing it. Some conversations that still need help may be closed.",
           "PENDING_INFO": "The conversation remains pending until the customer replies.",
           "RESOLUTION_MESSAGE": {
             "TITLE": "Send a message when resolving",
-            "DESCRIPTION": "Captain sends this closing message before it resolves the conversation."
+            "DESCRIPTION": "Domli AI sends this closing message before it resolves the conversation."
           },
           "MODES": {
             "DISABLED": {
               "LABEL": "Wait for the customer",
-              "DESCRIPTION": "Captain does not resolve the conversation. Captain can still hand it off if the customer asks."
+              "DESCRIPTION": "Domli AI does not resolve the conversation. Domli AI can still hand it off if the customer asks."
             },
             "LEGACY": {
               "LABEL": "Always resolve",
-              "DESCRIPTION": "Captain resolves every conversation after the selected time."
+              "DESCRIPTION": "Domli AI resolves every conversation after the selected time."
             },
             "EVALUATED": {
-              "LABEL": "Let Captain review it (recommended)",
-              "DESCRIPTION": "Captain decides whether to resolve the conversation or hand it off."
+              "LABEL": "Let Domli AI review it (recommended)",
+              "DESCRIPTION": "Domli AI decides whether to resolve the conversation or hand it off."
             }
           },
           "DURATION_HOURS_ARIA_LABEL": "Hours before action",
@@ -751,11 +751,11 @@
         "AUDIENCE": {
           "EVERYONE": {
             "LABEL": "Everyone",
-            "DESC": "Captain responds to every conversation in connected inboxes."
+            "DESC": "Domli AI responds to every conversation in connected inboxes."
           },
           "SPECIFIC": {
             "LABEL": "Specific audience",
-            "DESC": "Captain responds only to customers who match the conditions below."
+            "DESC": "Domli AI responds only to customers who match the conditions below."
           },
           "ADD_CONDITION": "Add condition",
           "ADD_GROUP": "Add condition group",
@@ -778,15 +778,15 @@
         "SCHEDULE": {
           "ALWAYS": {
             "LABEL": "Anytime",
-            "DESC": "Captain responds to every conversation, regardless of time."
+            "DESC": "Domli AI responds to every conversation, regardless of time."
           },
           "BUSINESS_HOURS": {
             "LABEL": "During business hours",
-            "DESC": "Captain responds only within each inbox's business hours."
+            "DESC": "Domli AI responds only within each inbox's business hours."
           },
           "OUTSIDE_BUSINESS_HOURS": {
             "LABEL": "Outside business hours",
-            "DESC": "Captain responds only when each inbox is closed."
+            "DESC": "Domli AI responds only when each inbox is closed."
           },
           "HINT": "Inboxes without business hours configured are always covered."
         }
@@ -806,7 +806,7 @@
         "SYSTEM_SETTINGS": {
           "TITLE": "System settings",
           "DESCRIPTION": "Customize what the assistant says when ending a conversation or transferring to a human.",
-          "DESCRIPTION_V2": "Manage what Captain does when customers stop replying and set the handoff message."
+          "DESCRIPTION_V2": "Manage what Domli AI does when customers stop replying and set the handoff message."
         },
         "AUDIENCE": {
           "TITLE": "Audience",
@@ -814,7 +814,7 @@
         },
         "SCHEDULE": {
           "TITLE": "Schedule",
-          "DESCRIPTION": "Choose when Captain replies. Outside this window, conversations are handed to your team."
+          "DESCRIPTION": "Choose when Domli AI replies. Outside this window, conversations are handed to your team."
         },
         "CONTROL_ITEMS": {
           "TITLE": "The Fun Stuff",
@@ -845,8 +845,8 @@
         "TITLE": "No assistants available",
         "SUBTITLE": "Create an assistant to provide quick and accurate responses to your users. It can learn from your help articles and past conversations.",
         "FEATURE_SPOTLIGHT": {
-          "TITLE": "Captain Assistant",
-          "NOTE": "Captain Assistant engages directly with customers, learns from your help docs and past conversations, and delivers instant, accurate responses. It handles the initial queries, providing quick resolutions before  transferring to an agent when needed."
+          "TITLE": "Domli AI Assistant",
+          "NOTE": "Domli AI Assistant engages directly with customers, learns from your help docs and past conversations, and delivers instant, accurate responses. It handles the initial queries, providing quick resolutions before  transferring to an agent when needed."
         }
       },
       "GUARDRAILS": {
@@ -1152,8 +1152,8 @@
         "FILTERED_TITLE": "No matching documents",
         "FILTERED_SUBTITLE": "Try changing the source, status, or search term.",
         "FEATURE_SPOTLIGHT": {
-          "TITLE": "Captain Document",
-          "NOTE": "A document in Captain serves as a knowledge resource for the assistant. By connecting your help center or guides, Captain can analyze the content and provide accurate responses for customer inquiries."
+          "TITLE": "Domli AI Document",
+          "NOTE": "A document in Domli AI serves as a knowledge resource for the assistant. By connecting your help center or guides, Domli AI can analyze the content and provide accurate responses for customer inquiries."
         }
       }
     },
@@ -1208,14 +1208,14 @@
         "ERROR_MESSAGE": "Failed to delete custom tool"
       },
       "PAYWALL": {
-        "TITLE": "Upgrade to use tools with Captain",
-        "AVAILABLE_ON": "Captain Tools are only available in Business and Enterprise plans. Please upgrade to Business plan to use the feature.",
+        "TITLE": "Upgrade to use tools with Domli AI",
+        "AVAILABLE_ON": "Domli AI Tools are only available in Business and Enterprise plans. Please upgrade to Business plan to use the feature.",
         "UPGRADE_PROMPT": "",
         "UPGRADE_NOW": "Openstaande facturering",
         "CANCEL_ANYTIME": ""
       },
       "ENTERPRISE_PAYWALL": {
-        "AVAILABLE_ON": "Captain Tools are only available in the paid plans.",
+        "AVAILABLE_ON": "Domli AI Tools are only available in the paid plans.",
         "UPGRADE_PROMPT": "Please upgrade to a paid plan to use this feature.",
         "ASK_ADMIN": "Please reach out to your administrator for the upgrade."
       },
@@ -1332,7 +1332,7 @@
         "ERROR_MESSAGE": "There was an error deleting the FAQ, please try again."
       },
       "SUGGESTIONS_BANNER": {
-        "TITLE": "Captain grouped recurring customer questions into FAQ suggestions.",
+        "TITLE": "Domli AI grouped recurring customer questions into FAQ suggestions.",
         "ACTION": "Review suggestions"
       },
       "FORM_DESCRIPTION": "Add a question and its corresponding answer to the knowledge base and select the assistant it should be associated with.",
@@ -1369,8 +1369,8 @@
         "SUBTITLE": "FAQs help your assistant provide quick and accurate answers to questions from your customers. They can be generated automatically from your content or can be added manually.",
         "CLEAR_SEARCH": "Clear active filters",
         "FEATURE_SPOTLIGHT": {
-          "TITLE": "Captain FAQ",
-          "NOTE": "Captain FAQs detects common customer questions—whether missing from your knowledge base or frequently asked—and generates relevant FAQs to improve support. You can review each suggestion and decide whether to approve or reject it."
+          "TITLE": "Domli AI FAQ",
+          "NOTE": "Domli AI FAQs detects common customer questions—whether missing from your knowledge base or frequently asked—and generates relevant FAQs to improve support. You can review each suggestion and decide whether to approve or reject it."
         }
       }
     },
@@ -1387,7 +1387,7 @@
       "SAVE": "Save changes",
       "DETAILS": {
         "TITLE": "Review FAQ suggestion",
-        "DESCRIPTION": "Captain grouped {count} conversation into this suggestion. Review the evidence and refine the FAQ before approval. | Captain grouped {count} conversations into this suggestion. Review the evidence and refine the FAQ before approval.",
+        "DESCRIPTION": "Domli AI grouped {count} conversation into this suggestion. Review the evidence and refine the FAQ before approval. | Domli AI grouped {count} conversations into this suggestion. Review the evidence and refine the FAQ before approval.",
         "SOURCES": "Source conversations",
         "SOURCE_PROGRESS": "{visible} of {total}",
         "NO_SOURCES": "No accessible source conversations were found.",
@@ -1399,7 +1399,7 @@
         "CLEAR_SEARCH": "Clear search"
       },
       "SUCCESS": {
-        "APPROVED": "FAQ approved and added to Captain's knowledge.",
+        "APPROVED": "FAQ approved and added to Domli AI's knowledge.",
         "DISMISSED": "Suggestion dismissed.",
         "SAVED": "Suggestion updated."
       },

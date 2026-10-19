@@ -141,7 +141,7 @@
   display_name: Linear Integration
   enabled: false
 - name: captain_integration
-  display_name: Captain
+  display_name: Domli AI
   enabled: false
   premium: true
 - name: custom_roles
@@ -240,7 +240,7 @@
   enabled: false
   premium: true
 - name: captain_tasks
-  display_name: Captain Tasks
+  display_name: Domli AI Tasks
   enabled: false
 - name: conversation_required_attributes
   display_name: Required Conversation Attributes

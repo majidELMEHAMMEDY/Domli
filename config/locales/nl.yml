@@ -409,8 +409,8 @@ nl:
       attachment_link_title: 'Conversation (#%{conversation_id}) with %{name}'
     notion:
       name: 'Notion'
-      short_description: 'Integrate databases, documents and pages directly with Captain.'
-      description: 'Connect your Notion workspace to enable Captain to access and generate intelligent responses using content from your databases, documents, and pages to provide more contextual customer support.'
+      short_description: 'Integrate databases, documents and pages directly with Domli AI.'
+      description: 'Connect your Notion workspace to enable Domli AI to access and generate intelligent responses using content from your databases, documents, and pages to provide more contextual customer support.'
     shopify:
       name: 'Shopify'
       short_description: 'Access order details and customer data from your Shopify store.'
@@ -423,9 +423,9 @@ nl:
     copilot_message_required: Bericht is vereist
     copilot_error: 'Please connect an assistant to this inbox to use Copilot'
     copilot_limit: 'You are out of Copilot credits. You can buy more credits from the billing section.'
-    upgrade: 'Upgrade je abonnement om Captain AI in te schakelen'
-    disabled: 'Captain AI is uitgeschakeld voor dit account.'
-    api_key_missing: 'Captain AI API-sleutel is niet geconfigureerd.'
+    upgrade: 'Upgrade je abonnement om Domli AI in te schakelen'
+    disabled: 'Domli AI is uitgeschakeld voor dit account.'
+    api_key_missing: 'Domli AI API-sleutel is niet geconfigureerd.'
     copilot:
       using_tool: 'Bezig met gebruik van tool %{function_name}'
       completed_tool_call: 'Voltooide %{function_name} tool-aanroep'
@@ -588,7 +588,7 @@ nl:
     analytics:
       invalid_configuration: 'Invalid analytics configuration'
     articles:
-      captain_not_available: 'Translation requires Captain to be enabled for this account'
+      captain_not_available: 'Translation requires Domli AI to be enabled for this account'
       locale_not_available: 'Locale not available in this portal'
       category_not_found: 'Category not found in this portal'
       no_articles_found: 'No articles found to process'
