@@ -20,6 +20,7 @@ Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding
 | `app/views/layouts/super_admin/application.html.erb` | Page title uses `INSTALLATION_NAME` instead of `application_title` | Super admin tab titles said "Chatwoot". |
 | `config/features.yml` (display names), `*/i18n/locale/{en,nl}/*.json`, `config/locales/{en,nl}.yml` | "Captain" renamed to "Domli AI" in visible strings | Domli AI branding of the built-in AI writing assistant. |
 | `app/helpers/super_admin/features.yml` | `captain` entry name/description -> "Domli AI" | Super admin sidebar and settings card label. |
+| `config/installation_config.yml` | "Captain" -> "Domli AI" in display titles and descriptions | Labels on the super admin Domli AI settings page. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 
 ## Intentionally not rebranded
