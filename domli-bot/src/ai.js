@@ -4,7 +4,7 @@ import { env } from './config.js';
 let client;
 const getClient = () => (client ||= new Anthropic({ apiKey: env.anthropicKey }));
 
-export function buildSystemPrompt(businessName, knowledge, { answerPrices = false } = {}) {
+export function buildSystemPrompt(businessName, knowledge, { answerPrices = false, instructions = '' } = {}) {
   const priceRule = answerPrices
     ? '- het over offertes, facturen of betalingen gaat (algemene prijzen mag je noemen als ze in de kennis staan),'
     : '- het over prijzen, offertes, facturen of betalingen gaat,';
@@ -20,6 +20,7 @@ ${priceRule}
 Antwoord ALLEEN met JSON: {"action":"answer"|"handoff","reply":"..."}
 Bij "handoff" mag "reply" leeg zijn.
 
+${instructions ? `\nExtra instructies van de eigenaar (de regels hierboven gaan altijd voor):\n<instructies>\n${instructions}\n</instructies>\n` : ''}
 <kennis>
 ${knowledge}
 </kennis>`;
@@ -38,14 +39,14 @@ export function parseDecision(text) {
 }
 
 // Only the single customer message is sent, no names, emails or history.
-export async function askClaude({ businessName, knowledge, message, answerPrices = false }) {
+export async function askClaude({ businessName, knowledge, message, answerPrices = false, instructions = '' }) {
   const response = await getClient().messages.create({
     model: env.model,
     max_tokens: 600,
     // Haiku 5.5 thinks by default and bills thinking as output: FAQ answers need neither, and thinking could eat the token budget.
     thinking: { type: 'disabled' },
     output_config: { effort: 'low' },
-    system: buildSystemPrompt(businessName, knowledge, { answerPrices }),
+    system: buildSystemPrompt(businessName, knowledge, { answerPrices, instructions }),
     messages: [{ role: 'user', content: message }],
   });
   const text = response.content.find(block => block.type === 'text')?.text || '';

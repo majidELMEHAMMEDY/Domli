@@ -45,6 +45,7 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
     knowledge: knowledge.text,
     message: text,
     answerPrices,
+    instructions: account.instructions || '',
   });
   recordUsage(accountId, usage.input, usage.output);
 

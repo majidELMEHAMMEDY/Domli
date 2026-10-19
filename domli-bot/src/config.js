@@ -22,6 +22,8 @@ export function getAccount(accountId) {
   return { mode: 'draft', monthlyTokenCap: 2000000, ...account };
 }
 
+export const MAX_INSTRUCTIONS = 2000;
+
 function readAccounts() {
   return existsSync(env.accountsFile) ? JSON.parse(readFileSync(env.accountsFile, 'utf8')) : {};
 }
@@ -34,6 +36,7 @@ export function listAccounts() {
     enabled: a.enabled === true,
     mode: a.mode || 'draft',
     answerPrices: a.answerPrices === true,
+    instructions: a.instructions || '',
   }));
 }
 
@@ -45,6 +48,11 @@ export function updateAccount(accountId, patch) {
   if ('mode' in patch) {
     if (!['draft', 'auto'].includes(patch.mode)) throw new Error('Ongeldige modus');
     account.mode = patch.mode;
+  }
+  if ('instructions' in patch) {
+    const text = String(patch.instructions || '').trim();
+    if (text.length > MAX_INSTRUCTIONS) throw new Error(`Instructies zijn te lang (maximaal ${MAX_INSTRUCTIONS} tekens)`);
+    account.instructions = text;
   }
   const tmp = `${env.accountsFile}.tmp`;
   writeFileSync(tmp, JSON.stringify(accounts, null, 2));

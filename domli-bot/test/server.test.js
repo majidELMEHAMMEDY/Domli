@@ -119,3 +119,27 @@ test('too many wrong tokens locks that client out, other clients are unaffected'
   assert.equal((await call('/admin/api/accounts', { headers: { ...auth, 'X-Real-IP': '203.0.113.9' } })).status, 429);
   assert.equal((await call('/admin/api/accounts', { headers: { ...auth, 'X-Real-IP': '203.0.113.10' } })).status, 200);
 });
+
+test('instructions can be saved from the admin, are listed, limited, and reach the AI prompt', async () => {
+  writeFileSync(process.env.ACCOUNTS_FILE, JSON.stringify({ 1: { businessName: 'Domli', enabled: true, chatwootBotToken: 'x' } }));
+  const patch = body => call('/admin/api/accounts/1', { method: 'PATCH', headers: auth, body: JSON.stringify(body) });
+  assert.equal((await patch({ instructions: '  Je heet Mila. Wees kort.  ' })).status, 200);
+  const list = await (await call('/admin/api/accounts', { headers: auth })).json();
+  assert.equal(list.accounts[0].instructions, 'Je heet Mila. Wees kort.');
+  assert.equal((await patch({ instructions: 'x'.repeat(2001) })).status, 400);
+
+  const { buildSystemPrompt } = await import('../src/ai.js');
+  const prompt = buildSystemPrompt('Domli', 'kennis hier', { instructions: 'Je heet Mila.' });
+  assert.ok(prompt.includes('<instructies>\nJe heet Mila.\n</instructies>'));
+  assert.ok(prompt.indexOf('Kies "handoff"') < prompt.indexOf('<instructies>'), 'rules come before owner instructions');
+  assert.ok(!buildSystemPrompt('Domli', 'k').includes('<instructies>'));
+
+  let seen;
+  const deps = {
+    chatwoot: { sendReply: async () => {}, sendNote: async () => {}, handoffToHuman: async () => {} },
+    askClaude: async args => { seen = args; return { decision: { action: 'answer', reply: 'Hoi' }, usage: { input: 1, output: 1 } }; },
+  };
+  const ev = { event: 'message_created', message_type: 'incoming', content: 'Hallo daar', account: { id: 1 }, conversation: { id: 5 } };
+  await handleEvent(ev, deps);
+  assert.equal(seen.instructions, 'Je heet Mila. Wees kort.');
+});

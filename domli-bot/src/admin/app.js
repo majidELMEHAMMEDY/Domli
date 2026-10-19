@@ -50,6 +50,7 @@ function showAccount() {
   const account = current();
   $('enabled').checked = account.enabled;
   $('mode').value = account.mode;
+  $('instructions').value = account.instructions || '';
   say('');
   return loadDocs();
 }
@@ -89,6 +90,11 @@ async function savePatch(patch) {
 }
 $('enabled').addEventListener('change', () => savePatch({ enabled: $('enabled').checked }));
 $('mode').addEventListener('change', () => savePatch({ mode: $('mode').value }));
+
+$('instructions-form').addEventListener('submit', event => {
+  event.preventDefault();
+  savePatch({ instructions: $('instructions').value });
+});
 
 $('text-form').addEventListener('submit', async event => {
   event.preventDefault();

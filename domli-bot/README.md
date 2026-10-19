@@ -18,7 +18,7 @@ Data minimisation: only the single message text is sent to Claude, no name, emai
 Open `https://<bot host>/admin` (needs `ADMIN_TOKEN` in `.env`; without it the page is disabled). Choose the customer, then:
 - paste text (FAQ, opening hours, how you work), or
 - import a public web page. The server fetches it, strips menus and scripts, and stores the text. Internal addresses are blocked, pages over 2 MB are refused.
-You can also switch the assistant on/off and choose draft or auto-reply there.
+You can also write **instructions** for the assistant (name, tone, things to always mention or avoid; max 2,000 characters) and switch it on/off and choose draft or auto-reply there. Instructions are added to the prompt after the fixed safety rules, so they can never override the handoff rules.
 
 Knowledge is stored as JSON per document in `knowledge/<accountId>/`. A legacy `knowledge/<accountId>.md` file still works as one document. Up to 200 documents of 100,000 characters each. Small knowledge (under about 6,000 characters) is sent whole; larger knowledge is searched (BM25, no extra AI provider needed) and the best passages are sent. Draft notes list the sources used.
 
