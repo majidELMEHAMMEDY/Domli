@@ -48,7 +48,7 @@ help_center:
   enabled: true
   icon: 'i-lucide-book-open'
 captain:
-  name: 'Captain'
+  name: 'Domli AI'
   description: 'Enable AI-powered conversations with your customers.'
   enabled: true
   icon: 'i-woot-captain text-n-violet-9'
