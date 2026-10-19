@@ -1,5 +1,5 @@
 <%
-  version = Domli.config[:version]
+  version = Chatwoot.config[:version]
   # Internal::CheckNewVersionsJob keeps the newest release here.
   latest_version = begin
     Redis::Alfred.get(Redis::Alfred::LATEST_CHATWOOT_VERSION).presence

@@ -1,7 +1,7 @@
 # Domli changes to upstream Chatwoot files
 
 Base: Chatwoot 4.18.0 (commit a0dfab928). Keep this list current so upstream merges stay easy.
-Domli-only files (no merge conflicts): `branding/`, `docs/domli/`, `domli-bot/`, `scripts/domli/`, `deployment/Caddyfile`, `docker-compose.production.yml`, `.env.production.example`, `.github/workflows/publish_domli_image.yml`, `config/locales/domli.nl.yml`, `NOTICE`, `DOMLI_CHANGES.md`.
+Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding/`, `docs/domli/`, `domli-bot/`, `scripts/domli/`, `deployment/Caddyfile`, `docker-compose.production.yml`, `.env.production.example`, `.github/workflows/publish_domli_image.yml`, `config/locales/domli.nl.yml`, `NOTICE`, `DOMLI_CHANGES.md`.
 
 | Path | Change | Reason |
 |---|---|---|
@@ -17,6 +17,7 @@ Domli-only files (no merge conflicts): `branding/`, `docs/domli/`, `domli-bot/`,
 | `config/features.yml` | `enabled: false` for help_center, macros, automations, campaigns, companies, captain_tasks, contact_chatwoot_support_team, channel_tiktok, mobile_voice_push | Simpler default feature set for new small-business accounts (flags only affect new accounts). |
 | `docker/Dockerfile` | `ENV CW_EDITION="ce"` appended | Mark the image as Community edition. |
 | `.dockerignore` | Ignore `domli-bot`, `docs`, `branding` | Smaller build context. |
+| `app/views/layouts/super_admin/application.html.erb` | Page title uses `INSTALLATION_NAME` instead of `application_title` | Super admin tab titles said "Chatwoot". |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 
 ## Intentionally not rebranded
