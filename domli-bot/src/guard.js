@@ -13,8 +13,10 @@ const HANDOFF_RULES = [
 
 const APPOINTMENT = /\b(afspraak|afspraken|boeken|inplannen|reserveren|beschikbaar|beschikbaarheid|tijdslot|verzetten|annuleren)\b/i;
 
-export function checkHandoff(text) {
-  const rule = HANDOFF_RULES.find(r => r.pattern.test(text));
+// skip: reasons this account may answer itself (e.g. ['prijs'] for Domli's own sales chat).
+// Complaints and medical topics can never be skipped.
+export function checkHandoff(text, { skip = [] } = {}) {
+  const rule = HANDOFF_RULES.find(r => !(r.reason === 'prijs' && skip.includes('prijs')) && r.pattern.test(text));
   return rule ? rule.reason : null;
 }
 

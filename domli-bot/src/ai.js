@@ -4,13 +4,16 @@ import { env } from './config.js';
 let client;
 const getClient = () => (client ||= new Anthropic({ apiKey: env.anthropicKey }));
 
-export function buildSystemPrompt(businessName, knowledge) {
+export function buildSystemPrompt(businessName, knowledge, { answerPrices = false } = {}) {
+  const priceRule = answerPrices
+    ? '- het over offertes, facturen of betalingen gaat (algemene prijzen mag je noemen als ze in de kennis staan),'
+    : '- het over prijzen, offertes, facturen of betalingen gaat,';
   return `Je bent de klantenservice-assistent van ${businessName}. Je antwoordt in het Nederlands, kort, vriendelijk en zakelijk (u-vorm).
 
 Gebruik UITSLUITEND de kennis hieronder. Verzin niets.
 Kies "handoff" als:
 - het antwoord niet in de kennis staat of je twijfelt,
-- het over prijzen, offertes, facturen of betalingen gaat,
+${priceRule}
 - het een klacht is,
 - het over gezondheid of medische zaken gaat.
 
@@ -35,14 +38,14 @@ export function parseDecision(text) {
 }
 
 // Only the single customer message is sent, no names, emails or history.
-export async function askClaude({ businessName, knowledge, message }) {
+export async function askClaude({ businessName, knowledge, message, answerPrices = false }) {
   const response = await getClient().messages.create({
     model: env.model,
     max_tokens: 600,
     // Haiku 5.5 thinks by default and bills thinking as output: FAQ answers need neither, and thinking could eat the token budget.
     thinking: { type: 'disabled' },
     output_config: { effort: 'low' },
-    system: buildSystemPrompt(businessName, knowledge),
+    system: buildSystemPrompt(businessName, knowledge, { answerPrices }),
     messages: [{ role: 'user', content: message }],
   });
   const text = response.content.find(block => block.type === 'text')?.text || '';

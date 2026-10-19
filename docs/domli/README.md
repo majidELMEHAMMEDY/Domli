@@ -9,5 +9,6 @@
 | [widget.md](widget.md) | Website chat button: embed snippet and settings |
 | [appointments.md](appointments.md) | OnlineAfspraken.nl integration status and how to enable it |
 | [../../domli-bot/README.md](../../domli-bot/README.md) | AI assistant and appointments bot |
+| [domli-ai.md](domli-ai.md) | Domli AI: writing assistant and AI Assistant (knowledge base, sales chat) |
 | [privacy/](privacy/) | DPA template, privacy policy outline, subprocessor list, scope notes |
 | [../../DOMLI_CHANGES.md](../../DOMLI_CHANGES.md) | Every change to upstream files |

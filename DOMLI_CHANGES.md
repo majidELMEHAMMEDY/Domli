@@ -18,6 +18,7 @@ Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding
 | `docker/Dockerfile` | `ENV CW_EDITION="ce"` appended | Mark the image as Community edition. |
 | `.dockerignore` | Ignore `domli-bot`, `docs`, `branding` | Smaller build context. |
 | `app/views/layouts/super_admin/application.html.erb` | Page title uses `INSTALLATION_NAME` instead of `application_title` | Super admin tab titles said "Chatwoot". |
+| `config/features.yml` (display names), `*/i18n/locale/{en,nl}/*.json`, `config/locales/{en,nl}.yml` | "Captain" renamed to "Domli AI" in visible strings | Domli AI branding of the built-in AI writing assistant. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 
 ## Intentionally not rebranded

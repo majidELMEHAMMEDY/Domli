@@ -67,9 +67,11 @@ services:
     build: ./domli-bot
     restart: always
     env_file: ./domli-bot/.env
+    ports:
+      - '127.0.0.1:3100:3100'
     volumes:
       - ./domli-bot/data:/app/data
-      - ./domli-bot/knowledge:/app/knowledge:ro
+      - ./domli-bot/knowledge:/app/knowledge
     environment:
       CHATWOOT_URL: http://rails:3000
       ACCOUNTS_FILE: /app/data/accounts.json

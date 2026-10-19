@@ -5,3 +5,5 @@ data/usage.json
 data/tokens.log
 knowledge/*.md
 !knowledge/example.md
+!knowledge/*.example.md
+knowledge/*/

@@ -1,5 +1,17 @@
 {
   "1": {
+    "businessName": "Domli",
+    "enabled": true,
+    "mode": "draft",
+    "answerPrices": true,
+    "chatwootBotToken": "AGENT_BOT_ACCESS_TOKEN_FOR_DOMLI",
+    "monthlyTokenCap": 2000000,
+    "appointments": {
+      "provider": "link",
+      "bookingUrl": "https://domli.nl/#contact"
+    }
+  },
+  "2": {
     "businessName": "Kapsalon De Vries",
     "enabled": true,
     "mode": "draft",

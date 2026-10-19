@@ -1,4 +1,6 @@
-import { getAccount, getKnowledge } from './config.js';
+import { getAccount } from './config.js';
+import { listDocs } from './knowledge/store.js';
+import { retrieve } from './knowledge/chunk.js';
 import { checkHandoff, isAppointmentIntent } from './guard.js';
 import { askClaude } from './ai.js';
 import { isOverCap, recordUsage } from './usage.js';
@@ -25,7 +27,8 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
     return `handoff:${reason}`;
   };
 
-  const reason = checkHandoff(text);
+  const answerPrices = account.answerPrices === true;
+  const reason = checkHandoff(text, { skip: answerPrices ? ['prijs'] : [] });
   if (reason) return handoff(reason);
 
   const adapter = isAppointmentIntent(text) ? getAppointmentAdapter(account.appointments) : null;
@@ -36,10 +39,12 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
 
   if (isOverCap(accountId, account.monthlyTokenCap)) return handoff('maandlimiet bereikt');
 
+  const knowledge = retrieve(listDocs(accountId), text);
   const { decision, usage } = await deps.askClaude({
     businessName: account.businessName,
-    knowledge: getKnowledge(accountId),
+    knowledge: knowledge.text,
     message: text,
+    answerPrices,
   });
   recordUsage(accountId, usage.input, usage.output);
 
@@ -48,6 +53,7 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
     await deps.chatwoot.sendReply(accountId, conversationId, token, decision.reply);
     return 'auto-reply';
   }
-  await deps.chatwoot.sendNote(accountId, conversationId, token, DRAFT_PREFIX + decision.reply);
+  const sources = knowledge.sources.length ? `\n\nBronnen: ${knowledge.sources.join(', ')}` : '';
+  await deps.chatwoot.sendNote(accountId, conversationId, token, DRAFT_PREFIX + decision.reply + sources);
   return 'draft';
 }

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Domli AI beheer</title>
+  <link rel="stylesheet" href="/admin/app.css">
+</head>
+<body>
+  <main>
+    <h1>Domli AI beheer</h1>
+
+    <section id="login">
+      <p>Voer het beheerderstoken in.</p>
+      <form id="login-form">
+        <input id="token" type="password" autocomplete="current-password" placeholder="Beheerderstoken" required>
+        <button type="submit">Inloggen</button>
+      </form>
+    </section>
+
+    <section id="app" hidden>
+      <label>Klant
+        <select id="account"></select>
+      </label>
+      <div class="row">
+        <label class="inline"><input id="enabled" type="checkbox"> Assistent aan</label>
+        <label class="inline">Modus
+          <select id="mode">
+            <option value="draft">Concept voor medewerker</option>
+            <option value="auto">Zelf antwoorden</option>
+          </select>
+        </label>
+      </div>
+
+      <h2>Kennis toevoegen</h2>
+      <form id="text-form">
+        <input id="title" placeholder="Titel (bijv. Openingstijden)" maxlength="120" required>
+        <textarea id="text" rows="6" placeholder="Plak hier tekst: veelgestelde vragen, openingstijden, werkwijze..." required></textarea>
+        <button type="submit">Tekst opslaan</button>
+      </form>
+      <form id="url-form">
+        <input id="url" type="url" placeholder="https://www.voorbeeld.nl/veelgestelde-vragen" required>
+        <button type="submit">Webpagina importeren</button>
+      </form>
+
+      <h2>Kennis van de assistent</h2>
+      <p id="status" role="status"></p>
+      <ul id="docs"></ul>
+    </section>
+  </main>
+  <script src="/admin/app.js"></script>
+</body>
+</html>
