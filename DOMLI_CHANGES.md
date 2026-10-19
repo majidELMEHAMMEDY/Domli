@@ -1,7 +1,7 @@
 # Domli changes to upstream Chatwoot files
 
 Base: Chatwoot 4.18.0 (commit a0dfab928). Keep this list current so upstream merges stay easy.
-Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding/`, `docs/domli/`, `domli-bot/`, `scripts/domli/`, `deployment/Caddyfile`, `docker-compose.production.yml`, `.env.production.example`, `.github/workflows/publish_domli_image.yml`, `config/locales/domli.nl.yml`, `NOTICE`, `DOMLI_CHANGES.md`.
+Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding/`, `docs/domli/`, `domli-bot/`, `scripts/domli/`, `deployment/Caddyfile`, `docker-compose.production.yml`, `.env.production.example`, `.github/workflows/publish_domli_image.yml`, `config/locales/domli.nl.yml`, `config/locales/domli.en.yml`, `app/controllers/super_admin/domli_ai_controller.rb`, `app/views/super_admin/domli_ai/`, `app/services/domli_ai/`, `NOTICE`, `DOMLI_CHANGES.md`.
 
 | Path | Change | Reason |
 |---|---|---|
@@ -21,6 +21,8 @@ Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding
 | `config/features.yml` (display names), `*/i18n/locale/{en,nl}/*.json`, `config/locales/{en,nl}.yml` | "Captain" renamed to "Domli AI" in visible strings | Domli AI branding of the built-in AI writing assistant. |
 | `app/helpers/super_admin/features.yml` | `captain` entry name/description -> "Domli AI" | Super admin sidebar and settings card label. |
 | `config/installation_config.yml` | "Captain" -> "Domli AI" in display titles and descriptions | Labels on the super admin Domli AI settings page. |
+| `config/routes.rb` | 5 routes under `super_admin` for `domli_ai` | Super admin page that manages the Domli AI assistant. |
+| `app/helpers/super_admin/navigation_helper.rb` | "Assistant" entry next to the Domli AI settings; `settings_open?` includes `domli_ai` | Menu entry for that page. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 
 ## Intentionally not rebranded

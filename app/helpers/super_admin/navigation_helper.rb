@@ -29,7 +29,7 @@ module SuperAdmin::NavigationHelper
   }.freeze
 
   def settings_open?
-    params[:controller].in? %w[super_admin/settings super_admin/app_configs]
+    params[:controller].in? %w[super_admin/settings super_admin/app_configs super_admin/domli_ai]
   end
 
   def monitor_open?
@@ -69,11 +69,18 @@ module SuperAdmin::NavigationHelper
     overview = { label: t('super_admin.navigation.overview'), url: super_admin_settings_path, icon: 'i-lucide-layout-grid',
                  active: controller_name == 'settings' }
 
-    [overview] + settings_pages.map do |feature_key, attrs|
+    pages = settings_pages.map do |feature_key, attrs|
       group_key = SETTINGS_GROUPS.keys.find { |key| SETTINGS_GROUPS[key].include?(feature_key) }
       { label: attrs['name'], url: super_admin_app_config_path(config: attrs['config_key']), group: (t(group_key) if group_key),
         icon: attrs['icon'], active: attrs['config_key'] == current_config }
     end
+    # DOMLI: assistant instructions and knowledge, next to the Domli AI settings
+    assistant = { label: t('super_admin.domli_ai.nav_label'), url: super_admin_domli_ai_path, icon: 'i-lucide-bot',
+                  group: t('super_admin.navigation.settings_groups.product'), active: controller_name == 'domli_ai' }
+    ai_index = pages.index { |item| item[:url].include?('config=captain') }
+    pages.insert(ai_index ? ai_index + 1 : pages.size, assistant)
+
+    [overview] + pages
   end
 
   # Settings and Monitor swap the sidebar for their own links; nil on every other page.

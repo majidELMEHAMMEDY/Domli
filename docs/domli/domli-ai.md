@@ -21,6 +21,17 @@ Other accounts: Super Admin -> Accounts -> account -> Features -> "Domli AI Task
 Data note: the text of the conversation is sent to the AI provider. Add the provider to the [subprocessor list](privacy/subprocessors.md) and use a paid/API plan whose terms say your data is not used for training.
 
 ## 2. AI Assistant (answers customers, `domli-bot`)
+
+**Manage it in Super Admin -> Settings -> Assistant** (next to Domli AI): choose the customer, switch the assistant on/off, choose draft or auto-reply, write instructions, add knowledge (text or web page) and delete knowledge. The page talks to the bot's admin API from the server, so the bot token never reaches the browser.
+
+Connect it once (on the VPS), then restart rails so it picks up the new variable:
+```bash
+cd /opt/domli
+echo "DOMLI_BOT_ADMIN_TOKEN=$(grep '^ADMIN_TOKEN=' domli-bot/.env | cut -d= -f2)" >> .env
+docker compose -f docker-compose.production.yml up -d rails
+```
+The bot's own admin page (`https://bot.domli.nl/admin`) keeps working and does the same; use either.
+
 Answers incoming messages from the business's own knowledge. See [domli-bot/README.md](../../domli-bot/README.md).
 
 - **Knowledge base:** text and web pages, managed on the admin page `/admin` of the bot (token protected). Small knowledge is sent whole, larger knowledge is searched.

@@ -773,6 +773,11 @@ Rails.application.routes.draw do
       root to: 'dashboard#index'
 
       resource :app_config, only: [:show, :create]
+      get 'domli_ai', to: 'domli_ai#show', as: :domli_ai
+      patch 'domli_ai', to: 'domli_ai#update'
+      post 'domli_ai/documents', to: 'domli_ai#create_document', as: :domli_ai_documents
+      post 'domli_ai/documents/url', to: 'domli_ai#import_url', as: :domli_ai_document_import
+      post 'domli_ai/documents/:id/delete', to: 'domli_ai#destroy_document', as: :domli_ai_document_delete
       resource :user_diagnostics, only: [:show, :create] do
         post :destroy_subscriptions, on: :collection
       end

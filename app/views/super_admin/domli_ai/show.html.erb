@@ -1,0 +1,85 @@
+<% content_for(:title) { t('super_admin.domli_ai.title') } %>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+
+<%= render "section", title: t('super_admin.domli_ai.title'), description: t('super_admin.domli_ai.description'), icon: 'i-lucide-bot' do %>
+  <% if !@configured %>
+    <%= render "alert" do %><%= t('super_admin.domli_ai.not_configured') %><% end %>
+  <% elsif @error %>
+    <%= render "alert" do %><%= @error %><% end %>
+  <% elsif @account.nil? %>
+    <%= render "alert" do %><%= t('super_admin.domli_ai.no_accounts') %><% end %>
+  <% else %>
+    <% account_id = @account['id'] %>
+
+    <%= form_with url: super_admin_domli_ai_path, method: :get, class: "flex items-end gap-3" do |form| %>
+      <div class="min-w-0 flex-1">
+        <%= form.label :account_id, t('super_admin.domli_ai.customer'), class: "text-label text-n-slate-12" %>
+        <%= form.select :account_id, @accounts.map { |a| ["#{a['businessName']} (##{a['id']})", a['id']] }, { selected: account_id }, class: ui(:select) %>
+      </div>
+      <%= render "button", label: t('super_admin.domli_ai.show'), variant: :secondary, submit: form %>
+    <% end %>
+
+    <%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+      <%= form.hidden_field :account_id, value: account_id %>
+      <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.settings_title') %></h2>
+      <%= hidden_field_tag :enabled, 'false', id: nil %>
+      <label class="flex items-center gap-2 text-body-main text-n-slate-12">
+        <%= check_box_tag :enabled, 'true', @account['enabled'], class: ui(:checkbox) %>
+        <%= t('super_admin.domli_ai.enabled') %>
+      </label>
+      <div>
+        <%= label_tag :mode, t('super_admin.domli_ai.mode'), class: "text-label text-n-slate-12" %>
+        <%= select_tag :mode, options_for_select([[t('super_admin.domli_ai.mode_draft'), 'draft'], [t('super_admin.domli_ai.mode_auto'), 'auto']], @account['mode']), class: ui(:select) %>
+        <p class="mt-1 text-label-small text-n-slate-11"><%= t('super_admin.domli_ai.mode_help') %></p>
+      </div>
+      <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+    <% end %>
+
+    <%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+      <%= form.hidden_field :account_id, value: account_id %>
+      <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.instructions_title') %></h2>
+      <p class="text-label-small text-n-slate-11"><%= t('super_admin.domli_ai.instructions_help') %></p>
+      <%= text_area_tag :instructions, @account['instructions'], rows: 8, maxlength: 2000, placeholder: t('super_admin.domli_ai.instructions_placeholder'), class: ui(:input) %>
+      <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+    <% end %>
+
+    <div class="<%= card %>">
+      <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.knowledge_title') %></h2>
+      <p class="text-label-small text-n-slate-11"><%= t('super_admin.domli_ai.knowledge_help') %></p>
+
+      <%= form_with url: super_admin_domli_ai_documents_path, method: :post, class: "space-y-3" do |form| %>
+        <%= form.hidden_field :account_id, value: account_id %>
+        <%= text_field_tag :title, nil, maxlength: 120, required: true, placeholder: t('super_admin.domli_ai.title_placeholder'), class: ui(:input) %>
+        <%= text_area_tag :text, nil, rows: 6, required: true, placeholder: t('super_admin.domli_ai.text_placeholder'), class: ui(:input) %>
+        <%= render "button", label: t('super_admin.domli_ai.add_text'), variant: :secondary, submit: form %>
+      <% end %>
+
+      <%= form_with url: super_admin_domli_ai_document_import_path, method: :post, class: "space-y-3" do |form| %>
+        <%= form.hidden_field :account_id, value: account_id %>
+        <%= url_field_tag :url, nil, required: true, placeholder: t('super_admin.domli_ai.url_placeholder'), class: ui(:input) %>
+        <%= render "button", label: t('super_admin.domli_ai.import_url'), variant: :secondary, submit: form %>
+      <% end %>
+    </div>
+
+    <div class="<%= card %>">
+      <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.documents_title') %></h2>
+      <% if @documents.empty? %>
+        <p class="text-body-main text-n-slate-11"><%= t('super_admin.domli_ai.no_documents') %></p>
+      <% else %>
+        <ul class="divide-y divide-n-weak">
+          <% @documents.each do |doc| %>
+            <li class="flex items-center justify-between gap-3 py-3">
+              <div class="min-w-0">
+                <p class="truncate text-body-main font-medium text-n-slate-12"><%= doc['title'] %></p>
+                <p class="truncate text-label-small text-n-slate-11"><%= doc['url'].presence || t('super_admin.domli_ai.source_text') %> &middot; <%= t('super_admin.domli_ai.characters', count: doc['chars'].to_i) %></p>
+              </div>
+              <%= render "button", label: t('super_admin.domli_ai.delete'), variant: :danger,
+                         post_to: super_admin_domli_ai_document_delete_path(id: doc['id'], account_id: account_id),
+                         data: { confirm: t('super_admin.domli_ai.delete_confirm') } %>
+            </li>
+          <% end %>
+        </ul>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
