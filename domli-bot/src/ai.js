@@ -38,7 +38,10 @@ export function parseDecision(text) {
 export async function askClaude({ businessName, knowledge, message }) {
   const response = await getClient().messages.create({
     model: env.model,
-    max_tokens: 400,
+    max_tokens: 600,
+    // Haiku 5.5 thinks by default and bills thinking as output: FAQ answers need neither, and thinking could eat the token budget.
+    thinking: { type: 'disabled' },
+    output_config: { effort: 'low' },
     system: buildSystemPrompt(businessName, knowledge),
     messages: [{ role: 'user', content: message }],
   });

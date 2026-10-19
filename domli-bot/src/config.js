@@ -18,7 +18,7 @@ export function getAccount(accountId) {
   const accounts = JSON.parse(readFileSync(env.accountsFile, 'utf8'));
   const account = accounts[String(accountId)];
   if (!account || account.enabled !== true) return null;
-  return { mode: 'draft', monthlyTokenCap: 100000, ...account };
+  return { mode: 'draft', monthlyTokenCap: 2000000, ...account };
 }
 
 export function getKnowledge(accountId) {

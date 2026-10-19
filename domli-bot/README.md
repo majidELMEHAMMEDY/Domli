@@ -27,7 +27,7 @@ npm install && npm start        # or: docker compose -f ../docker-compose.produc
 ```
 In Chatwoot (as the client's administrator): Settings -> Bots -> Add bot, outgoing URL `http://bot:3100/webhook/<BOT_WEBHOOK_SECRET>` (or `https://bot.domli.nl/webhook/...`). Copy the bot's **access token** into `chatwootBotToken` for that account. Then Inbox settings -> Configuration -> choose the bot. Bot-connected conversations start as *pending* and are opened for humans on handoff.
 
-`accounts.json` fields: `businessName`, `enabled`, `mode` (`draft`|`auto`), `chatwootBotToken`, `monthlyTokenCap` (default 100000 tokens), `appointments` (`provider`: `link`|`onlineafspraken`, `bookingUrl`, ...).
+`accounts.json` fields: `businessName`, `enabled`, `mode` (`draft`|`auto`), `chatwootBotToken`, `monthlyTokenCap` (default 2,000,000 tokens, roughly 900 answered questions with a ~2,000-token FAQ), `appointments` (`provider`: `link`|`onlineafspraken`, `bookingUrl`, ...).
 
 ## Safety notes
 - The webhook URL contains a secret; keep `BOT_WEBHOOK_SECRET` long and random.

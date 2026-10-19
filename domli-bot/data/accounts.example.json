@@ -4,7 +4,7 @@
     "enabled": true,
     "mode": "draft",
     "chatwootBotToken": "AGENT_BOT_ACCESS_TOKEN",
-    "monthlyTokenCap": 200000,
+    "monthlyTokenCap": 2000000,
     "appointments": {
       "provider": "link",
       "bookingUrl": "https://kapsalondevries.onlineafspraken.nl"
