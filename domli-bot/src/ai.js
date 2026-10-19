@@ -1,8 +1,16 @@
 import Anthropic from '@anthropic-ai/sdk';
-import { env } from './config.js';
+import { effectiveSettings } from './settings.js';
 
 let client;
-const getClient = () => (client ||= new Anthropic({ apiKey: env.anthropicKey }));
+let clientKey;
+function getClient(apiKey) {
+  if (!apiKey) throw new Error('Geen Anthropic API-sleutel ingesteld');
+  if (!client || clientKey !== apiKey) {
+    client = new Anthropic({ apiKey });
+    clientKey = apiKey;
+  }
+  return client;
+}
 
 export function buildSystemPrompt(businessName, knowledge, { answerPrices = false, instructions = '' } = {}) {
   const priceRule = answerPrices
@@ -40,8 +48,9 @@ export function parseDecision(text) {
 
 // Only the single customer message is sent, no names, emails or history.
 export async function askClaude({ businessName, knowledge, message, answerPrices = false, instructions = '' }) {
-  const response = await getClient().messages.create({
-    model: env.model,
+  const { anthropicApiKey, model } = effectiveSettings();
+  const response = await getClient(anthropicApiKey).messages.create({
+    model,
     max_tokens: 600,
     // Haiku 5.5 thinks by default and bills thinking as output: FAQ answers need neither, and thinking could eat the token budget.
     thinking: { type: 'disabled' },

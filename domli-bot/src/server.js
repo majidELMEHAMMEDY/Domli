@@ -3,7 +3,9 @@ import { readFileSync } from 'node:fs';
 import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
-import { env, listAccounts, updateAccount } from './config.js';
+import { env, listAccounts, updateAccount, createAccount, deleteAccount } from './config.js';
+import { publicSettings, saveSettings } from './settings.js';
+import { tokensUsed } from './usage.js';
 import { handleEvent } from './handler.js';
 import { listDocs, addDoc, deleteDoc } from './knowledge/store.js';
 import { fetchPage as defaultFetchPage } from './knowledge/fetchPage.js';
@@ -71,14 +73,30 @@ async function adminApi(req, res, pathname, deps) {
 
   const parts = pathname.split('/').filter(Boolean); // admin, api, accounts, :id, docs, ...
   try {
+    if (parts[2] === 'settings' && parts.length === 3) {
+      if (req.method === 'PUT') saveSettings(JSON.parse((await readBody(req)) || '{}'));
+      else if (req.method !== 'GET') return json(res, 405, { error: 'Niet toegestaan' });
+      return json(res, 200, { settings: publicSettings() });
+    }
     if (parts[2] !== 'accounts') return json(res, 404, { error: 'Niet gevonden' });
-    if (parts.length === 3 && req.method === 'GET') return json(res, 200, { accounts: listAccounts() });
+
+    const withUsage = account => ({ ...account, tokensUsed: tokensUsed(account.id) });
+    if (parts.length === 3 && req.method === 'GET') return json(res, 200, { accounts: listAccounts().map(withUsage) });
+    if (parts.length === 3 && req.method === 'POST') {
+      const body = JSON.parse((await readBody(req)) || '{}');
+      createAccount(String(body.id || ''), { businessName: body.businessName });
+      return json(res, 201, { ok: true });
+    }
 
     const accountId = parts[3];
     if (!listAccounts().some(a => a.id === accountId)) return json(res, 404, { error: 'Onbekend account' });
 
     if (parts.length === 4 && req.method === 'PATCH') {
       updateAccount(accountId, JSON.parse((await readBody(req)) || '{}'));
+      return json(res, 200, { ok: true });
+    }
+    if (parts.length === 4 && req.method === 'DELETE') {
+      deleteAccount(accountId);
       return json(res, 200, { ok: true });
     }
     if (parts[4] !== 'docs') return json(res, 404, { error: 'Niet gevonden' });

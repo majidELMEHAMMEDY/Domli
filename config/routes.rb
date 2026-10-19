@@ -775,6 +775,11 @@ Rails.application.routes.draw do
       resource :app_config, only: [:show, :create]
       get 'domli_ai', to: 'domli_ai#show', as: :domli_ai
       patch 'domli_ai', to: 'domli_ai#update'
+      put 'domli_ai/settings', to: 'domli_ai#update_settings', as: :domli_ai_settings
+      post 'domli_ai/enable', to: 'domli_ai#enable_account', as: :domli_ai_enable
+      post 'domli_ai/remove', to: 'domli_ai#remove_account', as: :domli_ai_remove
+      post 'domli_ai/connect', to: 'domli_ai#connect', as: :domli_ai_connect
+      post 'domli_ai/disconnect', to: 'domli_ai#disconnect', as: :domli_ai_disconnect
       post 'domli_ai/documents', to: 'domli_ai#create_document', as: :domli_ai_documents
       post 'domli_ai/documents/url', to: 'domli_ai#import_url', as: :domli_ai_document_import
       post 'domli_ai/documents/:id/delete', to: 'domli_ai#destroy_document', as: :domli_ai_document_delete

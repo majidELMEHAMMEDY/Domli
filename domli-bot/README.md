@@ -14,6 +14,9 @@ For every incoming customer message on a bot-connected inbox:
 
 Data minimisation: only the single message text is sent to Claude, no name, email, phone or history. Logs contain token counts only (`data/tokens.log`), never message content.
 
+## Managed from the super admin
+Everything below (API key, model, customers, instructions, knowledge, appointments, connecting to an inbox) is managed on **Super Admin -> Settings -> Assistant** (see docs/domli/domli-ai.md). Global settings are stored in `data/settings.json` (permissions 600); customers in `data/accounts.json`. Secrets are write-only through the API.
+
 ## Knowledge and admin page
 Open `https://<bot host>/admin` (needs `ADMIN_TOKEN` in `.env`; without it the page is disabled). Choose the customer, then:
 - paste text (FAQ, opening hours, how you work), or

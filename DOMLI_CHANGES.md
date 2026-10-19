@@ -21,7 +21,7 @@ Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding
 | `config/features.yml` (display names), `*/i18n/locale/{en,nl}/*.json`, `config/locales/{en,nl}.yml` | "Captain" renamed to "Domli AI" in visible strings | Domli AI branding of the built-in AI writing assistant. |
 | `app/helpers/super_admin/features.yml` | `captain` entry name/description -> "Domli AI" | Super admin sidebar and settings card label. |
 | `config/installation_config.yml` | "Captain" -> "Domli AI" in display titles and descriptions | Labels on the super admin Domli AI settings page. |
-| `config/routes.rb` | 5 routes under `super_admin` for `domli_ai` | Super admin page that manages the Domli AI assistant. |
+| `config/routes.rb` | 10 routes under `super_admin` for `domli_ai` | Super admin page that manages the Domli AI assistant. |
 | `app/helpers/super_admin/navigation_helper.rb` | "Assistant" entry next to the Domli AI settings; `settings_open?` includes `domli_ai` | Menu entry for that page. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |
 

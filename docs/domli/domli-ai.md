@@ -22,17 +22,23 @@ Data note: the text of the conversation is sent to the AI provider. Add the prov
 
 ## 2. AI Assistant (answers customers, `domli-bot`)
 
-**Manage it in Super Admin -> Settings -> Assistant** (next to Domli AI): choose the customer, switch the assistant on/off, choose draft or auto-reply, write instructions, add knowledge (text or web page) and delete knowledge. The page talks to the bot's admin API from the server, so the bot token never reaches the browser.
+**Everything is managed in Super Admin -> Settings -> Assistant.** Nothing has to be edited in files after the one-time connection below.
 
-Connect it once (on the VPS), then restart rails so it picks up the new variable:
+- **Connection to Claude (global):** paste the Anthropic API key (write-only: only the last 4 characters are shown afterwards), choose the model, and set the public address of the assistant service (for example `https://bot.domli.nl`).
+- **Per customer** (every Domli account is listed): "Set up the assistant" once, then switch on/off, draft or auto-reply, business name, monthly token limit (with this month's usage), "may mention prices", instructions, appointments (booking link; OnlineAfspraken fields are write-only), knowledge (text or web page).
+- **Connect to an inbox:** one button creates the "Domli AI" bot for that customer, passes its access token to the assistant service and attaches it to the chosen inbox. No tokens to copy.
+
+The page talks to the assistant service from the server, so none of the secrets reach the browser.
+
+**One-time connection** (on the VPS). Rails needs the assistant service's admin token; everything else is then set on the page:
 ```bash
 cd /opt/domli
 echo "DOMLI_BOT_ADMIN_TOKEN=$(grep '^ADMIN_TOKEN=' domli-bot/.env | cut -d= -f2)" >> .env
 docker compose -f docker-compose.production.yml up -d rails
 ```
-The bot's own admin page (`https://bot.domli.nl/admin`) keeps working and does the same; use either.
+The bot's `.env` still needs `BOT_WEBHOOK_SECRET` and `ADMIN_TOKEN`. `ANTHROPIC_API_KEY` there is now only a fallback: a key saved on the page takes priority. If Claude cannot be reached (wrong key, outage) the assistant hands the conversation to a person instead of leaving the visitor waiting.
 
-Answers incoming messages from the business's own knowledge. See [domli-bot/README.md](../../domli-bot/README.md).
+The bot's own admin page (`https://bot.domli.nl/admin`) still works for knowledge, instructions and on/off.
 
 - **Knowledge base:** text and web pages, managed on the admin page `/admin` of the bot (token protected). Small knowledge is sent whole, larger knowledge is searched.
 - **Modes:** draft (private note for an agent, default) or auto-reply. Switchable per customer, also from the admin page.

@@ -12,6 +12,22 @@ class DomliAi::BotClient
     ENV['DOMLI_BOT_ADMIN_TOKEN'].present?
   end
 
+  def settings
+    request(:get, '/settings').fetch('settings')
+  end
+
+  def update_settings(attributes)
+    request(:put, '/settings', attributes).fetch('settings')
+  end
+
+  def create_account(account_id, business_name:)
+    request(:post, '/accounts', { id: account_id.to_s, businessName: business_name })
+  end
+
+  def delete_account(account_id)
+    request(:delete, "/accounts/#{account_id}")
+  end
+
   def accounts
     request(:get, '/accounts').fetch('accounts')
   end

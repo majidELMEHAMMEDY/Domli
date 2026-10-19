@@ -40,13 +40,21 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
   if (isOverCap(accountId, account.monthlyTokenCap)) return handoff('maandlimiet bereikt');
 
   const knowledge = retrieve(listDocs(accountId), text);
-  const { decision, usage } = await deps.askClaude({
-    businessName: account.businessName,
-    knowledge: knowledge.text,
-    message: text,
-    answerPrices,
-    instructions: account.instructions || '',
-  });
+  let result;
+  try {
+    result = await deps.askClaude({
+      businessName: account.businessName,
+      knowledge: knowledge.text,
+      message: text,
+      answerPrices,
+      instructions: account.instructions || '',
+    });
+  } catch (error) {
+    // A broken key or an outage must not leave the customer waiting: give the conversation to a person.
+    console.error('ai error:', error.message);
+    return handoff('technische fout');
+  }
+  const { decision, usage } = result;
   recordUsage(accountId, usage.input, usage.output);
 
   if (decision.action === 'handoff') return handoff('onzeker');
