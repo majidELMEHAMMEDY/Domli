@@ -1,11 +1,22 @@
 import { env } from './config.js';
 
 async function request(path, token, body) {
-  const response = await fetch(`${env.chatwootUrl}/api/v1/accounts/${path}`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', api_access_token: token },
-    body: JSON.stringify(body),
-  });
+  let response;
+  try {
+    response = await fetch(`${env.chatwootUrl}/api/v1/accounts/${path}`, {
+      method: 'POST',
+      // The internal address is plain http. Domli forces https, so tell it the original request was secure,
+      // otherwise it redirects to https://rails:3000 and the connection fails.
+      headers: { 'Content-Type': 'application/json', api_access_token: token, 'X-Forwarded-Proto': 'https' },
+      body: JSON.stringify(body),
+      redirect: 'manual',
+    });
+  } catch (error) {
+    throw new Error(`Domli niet bereikbaar op ${env.chatwootUrl || '(CHATWOOT_URL niet ingesteld)'}: ${error.cause?.code || error.cause?.errors?.[0]?.code || error.message}`);
+  }
+  if (response.status >= 300 && response.status < 400) {
+    throw new Error(`Domli stuurde door naar ${response.headers.get('location')} (controleer CHATWOOT_URL)`);
+  }
   if (!response.ok) throw new Error(`Chatwoot API ${response.status} on ${path.split('/').slice(2).join('/')}`);
 }
 
