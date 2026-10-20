@@ -109,3 +109,19 @@ test('an AI failure hands the conversation to a person instead of leaving it wai
   assert.ok(calls.includes('handoff'));
   assert.ok(!calls.includes('reply'));
 });
+
+test('a failure to log usage does not stop the answer', async () => {
+  const { chmodSync, mkdirSync } = await import('node:fs');
+  // make usage.json unwritable by pointing the data dir at a path that is a file
+  const usageFile = join(dir, 'usage.json.tmp');
+  mkdirSync(usageFile, { recursive: true }); // a directory where the tmp file should go: writeFileSync fails with EISDIR
+  const calls = [];
+  const deps = {
+    chatwoot: { sendReply: async () => calls.push('reply'), sendNote: async (...a) => calls.push(['note', a[3]]), handoffToHuman: async () => calls.push('handoff') },
+    askClaude: async () => ({ decision: { action: 'answer', reply: 'Hoi!' }, usage: { input: 5, output: 5 } }),
+  };
+  writeFileSync(process.env.ACCOUNTS_FILE, JSON.stringify({ 1: { businessName: 'Domli', enabled: true, mode: 'auto', chatwootBotToken: 'TOKEN-ABCDEFGH' } }));
+  const ev = { event: 'message_created', message_type: 'incoming', content: 'Waar zijn jullie gevestigd?', account: { id: 1 }, conversation: { id: 5 } };
+  assert.equal(await handleEvent(ev, deps), 'auto-reply');
+  assert.ok(calls.includes('reply'));
+});

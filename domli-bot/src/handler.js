@@ -55,7 +55,12 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
     return handoff('technische fout');
   }
   const { decision, usage } = result;
-  recordUsage(accountId, usage.input, usage.output);
+  try {
+    recordUsage(accountId, usage.input, usage.output);
+  } catch (error) {
+    // Counting tokens must never stop a customer from getting their answer.
+    console.error('usage logging failed:', error.message);
+  }
 
   if (decision.action === 'handoff') return handoff('onzeker');
   if (account.mode === 'auto') {
