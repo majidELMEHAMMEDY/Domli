@@ -146,7 +146,13 @@ export function createAppServer({ fetchPage = defaultFetchPage, onEvent = handle
     try {
       const body = await readBody(req);
       res.writeHead(200).end('ok'); // answer Chatwoot immediately, work in the background
-      onEvent(JSON.parse(body)).catch(error => console.error('handler error:', error.message));
+      const event = JSON.parse(body);
+      onEvent(event)
+        .then(outcome => {
+          // Log what happened, never the message text. 'ignored' covers the many Chatwoot events that are not customer messages.
+          if (outcome !== 'ignored') console.log(`handled account=${event.account?.id} conversation=${event.conversation?.id} -> ${outcome}`);
+        })
+        .catch(error => console.error('handler error:', error.message));
     } catch (error) {
       console.error('bad payload:', error.message);
     }
