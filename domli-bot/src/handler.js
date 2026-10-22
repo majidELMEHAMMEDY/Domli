@@ -5,7 +5,7 @@ import { checkHandoff, isAppointmentIntent } from './guard.js';
 import { askClaude } from './ai.js';
 import { isOverCap, recordUsage } from './usage.js';
 import { getAppointmentAdapter } from './appointments/index.js';
-import { detectLanguage } from './lang.js';
+import { detectLanguage, smallTalkReply } from './lang.js';
 import * as chatwoot from './chatwoot.js';
 
 const HANDOFF_MESSAGE = {
@@ -65,6 +65,16 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
   if (adapter) {
     await deps.chatwoot.sendReply(accountId, conversationId, token, await adapter.reply({ language: detectLanguage(text) }));
     return 'appointment';
+  }
+
+  const quick = smallTalkReply(text);
+  if (quick) {
+    if (account.mode === 'auto') {
+      await deps.chatwoot.sendReply(accountId, conversationId, token, quick);
+      return 'small-talk';
+    }
+    await deps.chatwoot.sendNote(accountId, conversationId, token, DRAFT_PREFIX + quick);
+    return 'small-talk-draft';
   }
 
   if (isOverCap(accountId, account.monthlyTokenCap)) return handoff('maandlimiet bereikt');

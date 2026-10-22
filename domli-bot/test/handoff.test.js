@@ -187,3 +187,38 @@ test('askClaude reports why an answer was unusable (cut off, refused) and logs r
   delete process.env.DEBUG_AI_OUTPUT;
   assert.ok(out.logs.some(l => l.startsWith('AI debug:') && l.includes('Yes!')));
 });
+
+test('small talk gets an instant answer in the visitor language, without the AI', async () => {
+  const { smallTalkReply } = await import('../src/lang.js');
+  assert.match(smallTalkReply('do you speak english'), /Yes, I speak both English and Dutch/);
+  assert.match(smallTalkReply('Do you speak english?'), /English and Dutch/);
+  assert.match(smallTalkReply('can you speak dutch'), /English and Dutch/);
+  assert.match(smallTalkReply('spreek je engels?'), /Ja, ik spreek Nederlands en Engels/);
+  assert.match(smallTalkReply('Spreekt u Nederlands'), /Ja, ik spreek/);
+  assert.match(smallTalkReply('hey'), /Hello! How can I help you/);
+  assert.match(smallTalkReply('Hallo!'), /Hallo! Waarmee kan ik u helpen/);
+  assert.match(smallTalkReply('thanks'), /welcome/);
+  assert.match(smallTalkReply('bedankt!'), /Graag gedaan/);
+  for (const text of ['Hoeveel kost het Groei pakket', 'I speak english and have a question about pricing', 'hello, I want to book a demo', 'what is the owner name', '']) {
+    assert.equal(smallTalkReply(text), null, text);
+  }
+});
+
+test('handler: small talk is answered directly in auto mode and as a draft note otherwise, never handed over', async () => {
+  const run = async (mode, text) => {
+    write({ mode });
+    const m = mocks();
+    const outcome = await handleEvent(event(text), m);
+    return { outcome, calls: m.calls };
+  };
+  let r = await run('auto', 'do you speak english');
+  assert.equal(r.outcome, 'small-talk');
+  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['reply']);
+  assert.match(r.calls[0], /English and Dutch/);
+  r = await run('draft', 'hey');
+  assert.equal(r.outcome, 'small-talk-draft');
+  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['note']);
+  // a complaint that happens to include a greeting still goes to a person
+  r = await run('auto', 'hello, I have a complaint');
+  assert.equal(r.outcome, 'handoff:klacht');
+});
