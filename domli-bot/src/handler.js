@@ -92,7 +92,10 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
     console.error('usage logging failed:', error.message);
   }
 
-  if (decision.action === 'handoff') return handoff('onzeker');
+  if (decision.action === 'handoff') {
+    if (decision.reason === 'ongeldig AI-antwoord') console.warn('AI gaf geen geldig JSON-antwoord, conversatie overgedragen');
+    return handoff(decision.reason || 'onzeker');
+  }
   if (account.mode === 'auto') {
     await deps.chatwoot.sendReply(accountId, conversationId, token, decision.reply);
     return 'auto-reply';

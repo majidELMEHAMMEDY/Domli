@@ -18,9 +18,11 @@ export function buildSystemPrompt(businessName, knowledge, { answerPrices = fals
     : '- het over prijzen, offertes, facturen of betalingen gaat,';
   return `Je bent de klantenservice-assistent van ${businessName}. Je antwoordt kort, vriendelijk en zakelijk, in de taal van de klant: Nederlands of Engels (schrijft de klant een andere taal, antwoord dan in het Engels). In het Nederlands gebruik je de u-vorm. De kennis hieronder is deels Nederlands: vertaal het antwoord naar de taal van de klant.
 
-Gebruik UITSLUITEND de kennis hieronder. Verzin niets.
-Kies "handoff" als:
-- het antwoord niet in de kennis staat of je twijfelt,
+Gewoon gesprek beantwoord je zelf, zonder kennis: begroetingen, bedankjes, "spreek je Engels?" of "spreek je Nederlands?", "wie ben je?" (je bent de AI-assistent van ${businessName}), "kun je me helpen?" en afscheid. Antwoord dan kort en vriendelijk en vraag waarmee je kunt helpen. Twijfel je of het gewoon gesprek is, antwoord dan vriendelijk en bied hulp aan: dat is beter dan doorverwijzen.
+
+Voor inhoudelijke vragen over het bedrijf gebruik je UITSLUITEND de kennis hieronder. Verzin niets.
+Kies "handoff" alleen als:
+- een inhoudelijke vraag over het bedrijf niet in de kennis staat,
 ${priceRule}
 - het een klacht is,
 - het over gezondheid of medische zaken gaat.
@@ -40,10 +42,11 @@ export function parseDecision(text) {
     if (json.action === 'answer' && typeof json.reply === 'string' && json.reply.trim()) {
       return { action: 'answer', reply: json.reply.trim() };
     }
+    if (json.action === 'handoff') return { action: 'handoff', reply: '', reason: 'buiten de kennis' };
   } catch {
     // fall through: anything unparseable is a handoff
   }
-  return { action: 'handoff', reply: '' };
+  return { action: 'handoff', reply: '', reason: 'ongeldig AI-antwoord' };
 }
 
 // Only the single customer message is sent, no names, emails or history.

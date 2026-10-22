@@ -129,3 +129,26 @@ test('handoffAgentId: set, list, clear, validate', () => {
   updateAccount(1, { handoffAgentId: '' });
   assert.equal(listAccounts()[0].handoffAgentId, null);
 });
+
+test('small talk is answered by the assistant, not handed over: the prompt says so and keeps handoff for real unknowns', () => {
+  const prompt = buildSystemPrompt('Domli', 'kennis');
+  assert.match(prompt, /spreek je Engels/);
+  assert.match(prompt, /Gewoon gesprek beantwoord je zelf/);
+  assert.match(prompt, /een inhoudelijke vraag over het bedrijf niet in de kennis staat/);
+  // the old over-eager rule must be gone
+  assert.ok(!prompt.includes('niet in de kennis staat of je twijfelt'));
+  // safety rules still present
+  assert.match(prompt, /klacht/);
+  assert.match(prompt, /gezondheid/);
+});
+
+test('a model handoff and an unparseable answer are told apart in the reason', async () => {
+  const { parseDecision } = await import('../src/ai.js');
+  assert.deepEqual(parseDecision('{"action":"handoff","reply":""}'), { action: 'handoff', reply: '', reason: 'buiten de kennis' });
+  assert.equal(parseDecision('gewoon tekst zonder json').reason, 'ongeldig AI-antwoord');
+  assert.equal(parseDecision('{"action":"answer","reply":""}').reason, 'ongeldig AI-antwoord');
+  write({});
+  const m = mocks();
+  m.askClaude = async () => ({ decision: parseDecision('{"action":"handoff"}'), usage: { input: 1, output: 1 } });
+  assert.equal(await handleEvent(event('Wie is de eigenaar van het bedrijf?'), m), 'handoff:buiten de kennis');
+});
