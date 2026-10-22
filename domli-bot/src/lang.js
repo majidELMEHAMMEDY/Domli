@@ -15,7 +15,7 @@ export function detectLanguage(text) {
 
 // Common small talk is answered directly, without the AI: instant, free and never handed to a person by mistake.
 const LANGUAGE_QUESTION =
-  /\b(?:do|can|could)\s+(?:you|u)\s+(?:speak|talk)\b|\bspeak(?:s)?\s+(?:english|dutch|nederlands|engels)\b|\bspreek(?:t)?\s+(?:je|jij|u|jullie)\b.*\b(?:engels|nederlands|english|dutch)\b|\b(?:english|engels)\s*\?|\bpraat(?:en)?\s+(?:je|jij|u|jullie)\b.*\b(?:engels|nederlands)\b/i;
+  /\b(?:do|can|could|does)\s+(?:you|u)\s+(?:speak|talk)\b|\bspreek(?:t)?\s+(?:je|jij|u|jullie)\b.*\b(?:engels|nederlands|english|dutch)\b|\bpraat(?:en)?\s+(?:je|jij|u|jullie)\b.*\b(?:engels|nederlands)\b|^\s*(?:english|engels|dutch|nederlands)\s*\?\s*$/i;
 const GREETING = /^\s*(?:hi|hey|hello|hallo|hoi|hai|goedendag|goedemorgen|goedemiddag|goedenavond|good (?:morning|afternoon|evening))\s*[!.?]*\s*$/i;
 const THANKS = /^\s*(?:thanks|thank you|thx|bedankt|dank je|dank u|dankjewel|dankuwel|dankjewel)\s*[!.]*\s*$/i;
 
@@ -32,9 +32,15 @@ const SMALL_TALK = {
 };
 
 export function smallTalkReply(text) {
+  // Only short messages: a longer message has a real question in it that the assistant must read.
+  if (text.trim().split(/\s+/).length > 8) return null;
   const kind = LANGUAGE_QUESTION.test(text) ? 'language' : GREETING.test(text) ? 'greeting' : THANKS.test(text) ? 'thanks' : null;
   if (!kind) return null;
-  // A language question is answered in the language it was asked in; "english?" alone counts as English.
-  const language = kind === 'language' && /\bengels?\b|\bnederlands\b/i.test(text) && !/\b(?:english|dutch)\b/i.test(text) ? 'nl' : detectLanguage(text);
+  // A language question is answered in the language it was asked in ("English?" and "do you speak dutch" are English).
+  let language = detectLanguage(text);
+  if (kind === 'language') {
+    if (/\b(?:engels|nederlands)\b/i.test(text)) language = 'nl';
+    else if (/\b(?:english|dutch)\b/i.test(text)) language = 'en';
+  }
   return SMALL_TALK[kind][language];
 }

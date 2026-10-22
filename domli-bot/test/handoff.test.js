@@ -193,13 +193,14 @@ test('small talk gets an instant answer in the visitor language, without the AI'
   assert.match(smallTalkReply('do you speak english'), /Yes, I speak both English and Dutch/);
   assert.match(smallTalkReply('Do you speak english?'), /English and Dutch/);
   assert.match(smallTalkReply('can you speak dutch'), /English and Dutch/);
+  assert.match(smallTalkReply('English?'), /English and Dutch/);
   assert.match(smallTalkReply('spreek je engels?'), /Ja, ik spreek Nederlands en Engels/);
   assert.match(smallTalkReply('Spreekt u Nederlands'), /Ja, ik spreek/);
   assert.match(smallTalkReply('hey'), /Hello! How can I help you/);
   assert.match(smallTalkReply('Hallo!'), /Hallo! Waarmee kan ik u helpen/);
   assert.match(smallTalkReply('thanks'), /welcome/);
   assert.match(smallTalkReply('bedankt!'), /Graag gedaan/);
-  for (const text of ['Hoeveel kost het Groei pakket', 'I speak english and have a question about pricing', 'hello, I want to book a demo', 'what is the owner name', '']) {
+  for (const text of ['Hoeveel kost het Groei pakket', 'I speak english and have a question about pricing', 'hello, I want to book a demo', 'what is the owner name', 'do you speak english and what does the plus plan include with the assistant and whatsapp', 'I speak english', '']) {
     assert.equal(smallTalkReply(text), null, text);
   }
 });
