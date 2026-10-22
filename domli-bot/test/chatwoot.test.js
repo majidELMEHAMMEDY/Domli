@@ -41,3 +41,13 @@ test('API errors name the status', async () => {
   mode = 'unauthorized';
   await assert.rejects(sendNote(2, 9, 't', 'x'), /Chatwoot API 401/);
 });
+
+test('assignAgent sends the agent id, or null to release the bot', async () => {
+  const { assignAgent } = await import('../src/chatwoot.js');
+  mode = 'ok';
+  await assignAgent(2, 9, 't', 4);
+  assert.equal(received.url, '/api/v1/accounts/2/conversations/9/assignments');
+  assert.deepEqual(received.body, { assignee_id: 4 });
+  await assignAgent(2, 9, 't', undefined);
+  assert.deepEqual(received.body, { assignee_id: null });
+});

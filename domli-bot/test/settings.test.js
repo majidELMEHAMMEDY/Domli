@@ -101,13 +101,13 @@ test('appointments: validation and write-only secrets', async () => {
 test('an AI failure hands the conversation to a person instead of leaving it waiting', async () => {
   const calls = [];
   const deps = {
-    chatwoot: { sendReply: async () => calls.push('reply'), sendNote: async (...a) => calls.push(['note', a[3]]), handoffToHuman: async () => calls.push('handoff') },
+    chatwoot: { sendReply: async () => calls.push('reply'), sendNote: async (...a) => calls.push(['note', a[3]]), handoffToHuman: async () => calls.push('handoff'), assignAgent: async () => calls.push('assign') },
     askClaude: async () => { throw new Error('401 invalid x-api-key'); },
   };
   const ev = { event: 'message_created', message_type: 'incoming', content: 'Waar zijn jullie gevestigd?', account: { id: 1 }, conversation: { id: 5 } };
   assert.equal(await handleEvent(ev, deps), 'handoff:technische fout');
   assert.ok(calls.includes('handoff'));
-  assert.ok(!calls.includes('reply'));
+  assert.ok(calls.includes('reply'), 'the visitor is told a colleague will follow up');
 });
 
 test('a failure to log usage does not stop the answer', async () => {

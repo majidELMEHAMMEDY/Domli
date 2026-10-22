@@ -127,3 +127,6 @@ nl:
       remove: 'Verwijderen'
       remove_confirm: 'De assistent-instellingen van deze klant verwijderen?'
       need_public_url: 'Stel eerst het openbare adres van de assistent-service in (hierboven) en koppel daarna.'
+      handoff_agent: 'Overdragen aan'
+      handoff_agent_none: 'Niemand specifiek (inbox-leden krijgen een melding)'
+      handoff_agent_help: 'Draagt de assistent een gesprek over, dan laat hij dat de bezoeker weten, opent het gesprek en wijst het toe aan deze persoon, die een toewijzingsmelding krijgt (standaard aan). Zonder keuze krijgen alleen medewerkers een melding die "Er is een nieuw gesprek" hebben aangezet bij Profielinstellingen -> Meldingen.'

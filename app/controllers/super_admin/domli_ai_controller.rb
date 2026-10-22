@@ -14,12 +14,14 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     @bot_account = @bot_accounts.find { |account| account['id'] == @customer&.id.to_s }
     @documents = @bot_account ? client.documents(@customer.id) : []
     @inboxes = @customer ? @customer.inboxes.includes(:agent_bot).order(:id) : []
+    @agents = @customer ? @customer.users.order(:name) : []
   rescue DomliAi::BotClient::Error => e
     @error = e.message
     @customers = Account.none
     @bot_accounts = []
     @documents = []
     @inboxes = []
+    @agents = []
   end
 
   def update_settings
@@ -96,7 +98,15 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     attributes['businessName'] = params[:business_name].to_s if params.key?(:business_name)
     attributes['monthlyTokenCap'] = params[:monthly_token_cap].to_s.delete('.,').to_i if params.key?(:monthly_token_cap)
     attributes['appointments'] = appointments_attributes if params.key?(:appointment_provider)
+    attributes['handoffAgentId'] = handoff_agent_id if params.key?(:handoff_agent_id)
     attributes
+  end
+
+  # Blank clears it; otherwise it must be a member of this account (raises RecordNotFound, shown as an alert).
+  def handoff_agent_id
+    return '' if params[:handoff_agent_id].blank?
+
+    Account.find(@account_id).users.find(params[:handoff_agent_id]).id
   end
 
   def appointments_attributes

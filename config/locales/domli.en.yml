@@ -88,3 +88,6 @@ en:
       remove: 'Remove'
       remove_confirm: 'Remove the assistant settings for this customer?'
       need_public_url: 'Set the public address of the assistant service first (above), then connect.'
+      handoff_agent: 'Hand over to'
+      handoff_agent_none: 'Nobody in particular (inbox members are notified)'
+      handoff_agent_help: 'When the assistant hands a conversation over, it tells the visitor, opens the conversation and assigns it to this person, who gets an assignment notification (on by default). With nobody chosen, only agents who enabled "A new conversation is created" in Profile settings -> Notifications are notified.'

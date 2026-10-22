@@ -133,6 +133,11 @@
             <%= number_field_tag :monthly_token_cap, @bot_account['monthlyTokenCap'], min: 1000, step: 1000, class: ui(:input) %>
             <p class="<%= help %>"><%= t('super_admin.domli_ai.monthly_cap_help') %></p>
           </div>
+          <div>
+            <%= label_tag :handoff_agent_id, t('super_admin.domli_ai.handoff_agent'), class: label %>
+            <%= select_tag :handoff_agent_id, options_for_select([[t('super_admin.domli_ai.handoff_agent_none'), '']] + @agents.map { |agent| ["#{agent.name} (#{agent.email})", agent.id] }, @bot_account['handoffAgentId']), class: ui(:select) %>
+            <p class="<%= help %>"><%= t('super_admin.domli_ai.handoff_agent_help') %></p>
+          </div>
           <%= hidden_field_tag :answer_prices, 'false', id: nil %>
           <label class="flex items-center gap-2 text-body-main text-n-slate-12">
             <%= check_box_tag :answer_prices, 'true', @bot_account['answerPrices'], class: ui(:checkbox) %>

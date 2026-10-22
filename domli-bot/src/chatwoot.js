@@ -33,3 +33,8 @@ export const sendNote = (accountId, conversationId, token, content) =>
 // Opens the conversation so it appears for human agents.
 export const handoffToHuman = (accountId, conversationId, token) =>
   request(`${accountId}/conversations/${conversationId}/toggle_status`, token, { status: 'open' });
+
+// Assigns the conversation to a human agent (notifies that agent). With no agent it only releases the bot,
+// so the conversation shows as unassigned for the team.
+export const assignAgent = (accountId, conversationId, token, agentId) =>
+  request(`${accountId}/conversations/${conversationId}/assignments`, token, { assignee_id: agentId || null });

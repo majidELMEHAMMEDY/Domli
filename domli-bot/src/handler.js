@@ -5,7 +5,20 @@ import { checkHandoff, isAppointmentIntent } from './guard.js';
 import { askClaude } from './ai.js';
 import { isOverCap, recordUsage } from './usage.js';
 import { getAppointmentAdapter } from './appointments/index.js';
+import { detectLanguage } from './lang.js';
 import * as chatwoot from './chatwoot.js';
+
+const HANDOFF_MESSAGE = {
+  nl: 'Ik heb uw vraag doorgegeven aan een medewerker. U krijgt zo snel mogelijk antwoord.',
+  en: "I've passed your question on to a colleague. You'll get a reply as soon as possible.",
+};
+
+// The bot receives every message of its inbox. Once a human has the conversation (assigned to a person, or opened
+// and released after a handoff) the bot must stay out of it. Payloads without a status are treated as bot-handled.
+export function shouldHandle(conversation) {
+  if (!conversation?.status || conversation.status === 'pending') return true;
+  return conversation.meta?.assignee_type === 'AgentBot' || conversation.meta?.assignee?.type === 'agent_bot';
+}
 
 const DRAFT_PREFIX = '💡 Conceptantwoord van de assistent (nog niet verstuurd):\n\n';
 
@@ -15,15 +28,32 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
   const text = (event.content || '').trim();
   if (!text) return 'ignored';
 
+  if (!shouldHandle(event.conversation)) return 'human-handling';
+
   const accountId = event.account?.id;
   const conversationId = event.conversation?.id;
   const account = getAccount(accountId);
   if (!account) return 'disabled';
 
   const token = account.chatwootBotToken;
+  // Order matters: open first, while the conversation is still pending. Domli then runs its own bot handoff
+  // (releases the bot, notifies agents). Any message sent first would already flip it to "open" with the bot assigned.
   const handoff = async reason => {
-    await deps.chatwoot.sendNote(accountId, conversationId, token, `🤝 Overgedragen aan een medewerker (reden: ${reason}).`);
-    await deps.chatwoot.handoffToHuman(accountId, conversationId, token);
+    const language = detectLanguage(text);
+    const steps = [
+      () => deps.chatwoot.handoffToHuman(accountId, conversationId, token),
+      () => deps.chatwoot.assignAgent(accountId, conversationId, token, account.handoffAgentId),
+      () => deps.chatwoot.sendReply(accountId, conversationId, token, HANDOFF_MESSAGE[language]),
+      () => deps.chatwoot.sendNote(accountId, conversationId, token, `🤝 Overgedragen aan een medewerker (reden: ${reason}).`),
+    ];
+    // Every step is attempted even if an earlier one fails: the visitor must always hear that a person will follow up.
+    for (const step of steps) {
+      try {
+        await step();
+      } catch (error) {
+        console.error('handoff step failed:', error.message);
+      }
+    }
     return `handoff:${reason}`;
   };
 
@@ -33,7 +63,7 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
 
   const adapter = isAppointmentIntent(text) ? getAppointmentAdapter(account.appointments) : null;
   if (adapter) {
-    await deps.chatwoot.sendReply(accountId, conversationId, token, await adapter.reply());
+    await deps.chatwoot.sendReply(accountId, conversationId, token, await adapter.reply({ language: detectLanguage(text) }));
     return 'appointment';
   }
 

@@ -43,6 +43,9 @@ The bot's own admin page (`https://bot.domli.nl/admin`) still works for knowledg
 - **Knowledge base:** text and web pages, managed on the admin page `/admin` of the bot (token protected). Small knowledge is sent whole, larger knowledge is searched.
 - **Modes:** draft (private note for an agent, default) or auto-reply. Switchable per customer, also from the admin page.
 - **Handoff:** complaints and medical topics always go to a human. Prices go to a human too, except for accounts with `"answerPrices": true` (use this only for Domli's own sales chat).
+- **Handoff (verified end to end on a test Domli):** when the assistant hands a conversation to a person it (1) opens the conversation first, so Domli's own bot-handoff runs and releases the bot, (2) assigns it to the person chosen under **Hand over to**, (3) tells the visitor in their language ("I've passed your question on to a colleague..."), (4) leaves a private note with the reason. The chosen person gets a notification (bell, push, email). They must be an agent of that account and a **collaborator of the inbox** (Settings -> Inboxes -> inbox -> Collaborators), otherwise Domli does not notify them. With nobody chosen the conversation just becomes open and unassigned, and only agents who turned on "A new conversation is created" in Profile settings -> Notifications are notified.
+- **After a handoff the assistant stays out of that conversation** (it ignores messages once a person has it), so it never talks over your team.
+- **Languages:** the assistant answers in the visitor's language (Dutch or English); fixed texts (handoff message, booking link) follow the same detection, and the price/complaint/medical keyword checks know both languages.
 - **Cost control:** monthly token cap per account, token log without message content.
 - **Privacy:** only the single customer message and relevant knowledge go to the AI. No name, email, phone or history.
 

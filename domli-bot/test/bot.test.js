@@ -46,6 +46,7 @@ function mocks(decision = { action: 'answer', reply: 'Wij zijn open van 9 tot 18
       sendReply: async (...a) => calls.push(['reply', a[3]]),
       sendNote: async (...a) => calls.push(['note', a[3]]),
       handoffToHuman: async () => calls.push(['handoff']),
+      assignAgent: async () => calls.push(['assign']),
     },
     askClaude: async () => {
       calls.push(['claude']);
@@ -105,7 +106,7 @@ test('sensitive message never reaches the AI', async () => {
   const m = mocks();
   assert.equal(await handleEvent(event('Ik wil mijn geld terug, dit is een klacht'), m), 'handoff:klacht');
   assert.equal(m.calls.some(c => c[0] === 'claude'), false);
-  assert.equal(m.calls.at(-1)[0], 'handoff');
+  assert.ok(m.calls.some(c => c[0] === 'handoff'), 'conversation is opened for a person');
 });
 
 test('appointment question sends the booking link without the AI', async () => {

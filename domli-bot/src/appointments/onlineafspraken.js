@@ -44,18 +44,19 @@ export async function callApi(method, params, credentials, fetchImpl = fetch) {
 export function createOnlineAfsprakenAdapter({ apiKey, apiSecret, bookingUrl, appointmentTypeId }) {
   return {
     name: 'onlineafspraken',
-    async reply() {
+    async reply({ language = 'nl' } = {}) {
+      const en = language === 'en';
       try {
         const objects = await callApi(METHODS.bookableTimes, { appointmentTypeId }, { apiKey, apiSecret });
         const times = [].concat(objects?.BookableTime || []).slice(0, 3);
         if (times.length) {
           const list = times.map(t => `${t.Date} ${t.StartTime}`).join(', ');
-          return `De eerstvolgende beschikbare momenten zijn: ${list}. Boeken kan via: ${bookingUrl}`;
+          return en ? `The next available times are: ${list}. You can book here: ${bookingUrl}` : `De eerstvolgende beschikbare momenten zijn: ${list}. Boeken kan via: ${bookingUrl}`;
         }
       } catch (error) {
         console.error(error.message);
       }
-      return `U kunt zelf een afspraak inplannen via: ${bookingUrl}`;
+      return en ? `You can book an appointment yourself here: ${bookingUrl}` : `U kunt zelf een afspraak inplannen via: ${bookingUrl}`;
     },
   };
 }

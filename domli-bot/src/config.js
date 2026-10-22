@@ -39,6 +39,7 @@ export function listAccounts() {
     mode: a.mode || 'draft',
     answerPrices: a.answerPrices === true,
     instructions: a.instructions || '',
+    handoffAgentId: a.handoffAgentId || null,
     monthlyTokenCap: a.monthlyTokenCap || DEFAULT_TOKEN_CAP,
     botTokenSet: Boolean(a.chatwootBotToken),
     appointments: a.appointments
@@ -112,6 +113,15 @@ export function updateAccount(accountId, patch) {
     const text = String(patch.instructions || '').trim();
     if (text.length > MAX_INSTRUCTIONS) throw new Error(`Instructies zijn te lang (maximaal ${MAX_INSTRUCTIONS} tekens)`);
     account.instructions = text;
+  }
+  if ('handoffAgentId' in patch) {
+    if (patch.handoffAgentId === null || patch.handoffAgentId === '' || patch.handoffAgentId === undefined) {
+      delete account.handoffAgentId;
+    } else {
+      const agentId = Number(patch.handoffAgentId);
+      if (!Number.isInteger(agentId) || agentId < 1) throw new Error('Ongeldige medewerker');
+      account.handoffAgentId = agentId;
+    }
   }
   if ('appointments' in patch) {
     const input = patch.appointments || {};
