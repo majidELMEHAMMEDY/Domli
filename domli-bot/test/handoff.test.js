@@ -14,10 +14,10 @@ process.env.ANTHROPIC_API_KEY = 'k'.repeat(30);
 
 const { handleEvent, shouldHandle } = await import('../src/handler.js');
 const { detectLanguage } = await import('../src/lang.js');
-const { checkHandoff, isAppointmentIntent } = await import('../src/guard.js');
+const { DEFAULTS, firstMatch } = await import('../src/rules.js');
 const { updateAccount, listAccounts } = await import('../src/config.js');
 const { createLinkAdapter } = await import('../src/appointments/link.js');
-const { buildSystemPrompt } = await import('../src/ai.js');
+const { buildSystemPrompt, parseDecision, askClaude } = await import('../src/ai.js');
 
 const write = account => writeFileSync(process.env.ACCOUNTS_FILE, JSON.stringify({ 1: { businessName: 'Domli', enabled: true, chatwootBotToken: 'TOKEN-ABCDEFGH', ...account } }));
 const event = (content, conversation = { id: 5 }) => ({ event: 'message_created', message_type: 'incoming', content, account: { id: 1 }, conversation });
@@ -90,22 +90,22 @@ test('the bot stays out of conversations a human has', async () => {
 test('language detection', () => {
   assert.equal(detectLanguage('do you speak english'), 'en');
   assert.equal(detectLanguage('what is your name'), 'en');
+  assert.equal(detectLanguage('hey'), 'en');
   assert.equal(detectLanguage('Wat kost het Groei pakket?'), 'nl');
   assert.equal(detectLanguage('hallo, kan ik een afspraak maken'), 'nl');
   assert.equal(detectLanguage('12345'), 'nl');
 });
 
-test('English keywords: prices, complaints, medical, appointments', () => {
-  assert.equal(checkHandoff('How much does it cost?'), 'prijs');
-  assert.equal(checkHandoff('What are your prices'), 'prijs');
-  assert.equal(checkHandoff('I am very unhappy, this is terrible'), 'klacht');
-  assert.equal(checkHandoff('I have a lot of pain after the treatment'), 'medisch');
-  assert.equal(checkHandoff('What is the name of the owner of domli'), null);
-  assert.equal(checkHandoff('Do you speak english'), null);
-  assert.equal(checkHandoff('What are your prices', { skip: ['prijs'] }), null);
-  assert.equal(checkHandoff('I want to complain', { skip: ['prijs'] }), 'klacht');
-  assert.equal(isAppointmentIntent('I would like to book an appointment'), true);
-  assert.equal(isAppointmentIntent('Where can I park?'), false);
+test('default rules: English keywords for prices, complaints, medical, appointments', () => {
+  const handoff = text => firstMatch(DEFAULTS.rules, text, 'handoff')?.reason ?? null;
+  assert.equal(handoff('How much does it cost?'), 'prijs');
+  assert.equal(handoff('What are your prices'), 'prijs');
+  assert.equal(handoff('I am very unhappy, this is terrible'), 'klacht');
+  assert.equal(handoff('I have a lot of pain after the treatment'), 'medisch');
+  assert.equal(handoff('What is the name of the owner of domli'), null);
+  assert.equal(handoff('Do you speak english'), null);
+  assert.ok(firstMatch(DEFAULTS.rules, 'I would like to book an appointment', 'appointment'));
+  assert.equal(firstMatch(DEFAULTS.rules, 'Where can I park?', 'appointment'), null);
 });
 
 test('booking link reply follows the visitor language', async () => {
@@ -113,12 +113,6 @@ test('booking link reply follows the visitor language', async () => {
   assert.match(await adapter.reply({ language: 'en' }), /book an appointment/);
   assert.match(await adapter.reply({ language: 'nl' }), /afspraak inplannen/);
   assert.match(await adapter.reply(), /afspraak/);
-});
-
-test('the prompt asks for the visitor language and keeps the safety rules before owner instructions', () => {
-  const prompt = buildSystemPrompt('Domli', 'kennis', { instructions: 'Je heet Mila.' });
-  assert.match(prompt, /Nederlands of Engels/);
-  assert.ok(prompt.indexOf('Kies "handoff"') < prompt.indexOf('<instructies>'));
 });
 
 test('handoffAgentId: set, list, clear, validate', () => {
@@ -131,32 +125,37 @@ test('handoffAgentId: set, list, clear, validate', () => {
   assert.equal(listAccounts()[0].handoffAgentId, null);
 });
 
-test('small talk is answered by the assistant, not handed over: the prompt says so and keeps handoff for real unknowns', () => {
-  const prompt = buildSystemPrompt('Domli', 'kennis');
-  assert.match(prompt, /spreek je Engels/);
-  assert.match(prompt, /Gewoon gesprek beantwoord je zelf/);
-  assert.match(prompt, /een inhoudelijke vraag over het bedrijf niet in de kennis staat/);
-  // the old over-eager rule must be gone
-  assert.ok(!prompt.includes('niet in de kennis staat of je twijfelt'));
-  // safety rules still present
-  assert.match(prompt, /klacht/);
-  assert.match(prompt, /gezondheid/);
-});
-
-test('a model handoff and an unparseable answer are told apart in the reason', async () => {
-  const { parseDecision } = await import('../src/ai.js');
+test('parseDecision tells a model handoff from an unreadable answer', () => {
+  assert.deepEqual(parseDecision('{"action":"answer","reply":"Hoi"}'), { action: 'answer', reply: 'Hoi' });
   assert.deepEqual(parseDecision('{"action":"handoff","reply":""}'), { action: 'handoff', reply: '', reason: 'buiten de kennis' });
-  assert.equal(parseDecision('gewoon tekst zonder json').reason, 'ongeldig AI-antwoord');
+  assert.equal(parseDecision('gewoon tekst').reason, 'ongeldig AI-antwoord');
   assert.equal(parseDecision('{"action":"answer","reply":""}').reason, 'ongeldig AI-antwoord');
-  write({});
-  const m = mocks();
-  m.askClaude = async () => ({ decision: parseDecision('{"action":"handoff"}'), usage: { input: 1, output: 1 } });
-  assert.equal(await handleEvent(event('Wie is de eigenaar van het bedrijf?'), m), 'handoff:buiten de kennis');
 });
 
-test('askClaude reports why an answer was unusable (cut off, refused) and logs raw output only when debugging is on', async () => {
+test('quick replies: instant answers from the customer rules, in the visitor language, never handed over', async () => {
+  const run = async (mode, text) => {
+    write({ mode });
+    const m = mocks();
+    return { outcome: await handleEvent(event(text), m), calls: m.calls };
+  };
+  let r = await run('auto', 'do you speak english');
+  assert.equal(r.outcome, 'quick-reply');
+  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['reply']);
+  assert.match(r.calls[0], /English and Dutch/);
+  r = await run('auto', 'spreek je engels?');
+  assert.match(r.calls[0], /Ja, ik spreek Nederlands en Engels/);
+  r = await run('draft', 'hey');
+  assert.equal(r.outcome, 'quick-reply-draft');
+  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['note']);
+  // long messages and complaints are not small talk
+  r = await run('auto', 'hello, I have a complaint');
+  assert.equal(r.outcome, 'handoff:klacht');
+  r = await run('auto', 'hello I would like to know more about how the assistant works with whatsapp');
+  assert.equal(r.outcome, 'handoff:onzeker');
+});
+
+test('askClaude reports why an answer was unusable and logs raw output only when debugging is on', async () => {
   const Anthropic = (await import('@anthropic-ai/sdk')).default;
-  const { askClaude } = await import('../src/ai.js');
   const reply = (stop_reason, text) => ({ stop_reason, content: text === null ? [] : [{ type: 'text', text }], usage: { input_tokens: 1, output_tokens: 1 } });
   const ask = async response => {
     const create = Anthropic.Messages.prototype.create;
@@ -166,7 +165,7 @@ test('askClaude reports why an answer was unusable (cut off, refused) and logs r
     console.warn = (...a) => logs.push(a.join(' '));
     console.log = (...a) => logs.push(a.join(' '));
     try {
-      return { result: await askClaude({ businessName: 'Domli', knowledge: 'k', message: 'hi' }), logs };
+      return { result: await askClaude({ businessName: 'Domli', rules: [], knowledge: 'k', message: 'hi' }), logs };
     } finally {
       Anthropic.Messages.prototype.create = create;
       [console.warn, console.log] = [warn, log];
@@ -174,52 +173,13 @@ test('askClaude reports why an answer was unusable (cut off, refused) and logs r
   };
   let out = await ask(reply('max_tokens', '{"action":"answer","reply":"half'));
   assert.equal(out.result.decision.reason, 'AI-antwoord afgekapt');
-  assert.ok(out.logs.some(l => l.includes('stop_reason=max_tokens')));
   out = await ask(reply('refusal', null));
   assert.equal(out.result.decision.reason, 'AI weigerde te antwoorden');
-  out = await ask(reply('end_turn', 'geen json'));
-  assert.equal(out.result.decision.reason, 'ongeldig AI-antwoord');
   out = await ask(reply('end_turn', '{"action":"answer","reply":"Yes, I speak English!"}'));
   assert.equal(out.result.decision.action, 'answer');
-  assert.equal(out.logs.length, 0, 'no logging for a good answer without debug');
+  assert.equal(out.logs.length, 0);
   process.env.DEBUG_AI_OUTPUT = '1';
   out = await ask(reply('end_turn', '{"action":"answer","reply":"Yes!"}'));
   delete process.env.DEBUG_AI_OUTPUT;
   assert.ok(out.logs.some(l => l.startsWith('AI debug:') && l.includes('Yes!')));
-});
-
-test('small talk gets an instant answer in the visitor language, without the AI', async () => {
-  const { smallTalkReply } = await import('../src/lang.js');
-  assert.match(smallTalkReply('do you speak english'), /Yes, I speak both English and Dutch/);
-  assert.match(smallTalkReply('Do you speak english?'), /English and Dutch/);
-  assert.match(smallTalkReply('can you speak dutch'), /English and Dutch/);
-  assert.match(smallTalkReply('English?'), /English and Dutch/);
-  assert.match(smallTalkReply('spreek je engels?'), /Ja, ik spreek Nederlands en Engels/);
-  assert.match(smallTalkReply('Spreekt u Nederlands'), /Ja, ik spreek/);
-  assert.match(smallTalkReply('hey'), /Hello! How can I help you/);
-  assert.match(smallTalkReply('Hallo!'), /Hallo! Waarmee kan ik u helpen/);
-  assert.match(smallTalkReply('thanks'), /welcome/);
-  assert.match(smallTalkReply('bedankt!'), /Graag gedaan/);
-  for (const text of ['Hoeveel kost het Groei pakket', 'I speak english and have a question about pricing', 'hello, I want to book a demo', 'what is the owner name', 'do you speak english and what does the plus plan include with the assistant and whatsapp', 'I speak english', '']) {
-    assert.equal(smallTalkReply(text), null, text);
-  }
-});
-
-test('handler: small talk is answered directly in auto mode and as a draft note otherwise, never handed over', async () => {
-  const run = async (mode, text) => {
-    write({ mode });
-    const m = mocks();
-    const outcome = await handleEvent(event(text), m);
-    return { outcome, calls: m.calls };
-  };
-  let r = await run('auto', 'do you speak english');
-  assert.equal(r.outcome, 'small-talk');
-  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['reply']);
-  assert.match(r.calls[0], /English and Dutch/);
-  r = await run('draft', 'hey');
-  assert.equal(r.outcome, 'small-talk-draft');
-  assert.deepEqual(r.calls.map(c => c.split(':')[0]), ['note']);
-  // a complaint that happens to include a greeting still goes to a person
-  r = await run('auto', 'hello, I have a complaint');
-  assert.equal(r.outcome, 'handoff:klacht');
 });

@@ -3,7 +3,8 @@ import { readFileSync } from 'node:fs';
 import { timingSafeEqual } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { join, dirname } from 'node:path';
-import { env, listAccounts, updateAccount, createAccount, deleteAccount } from './config.js';
+import { env, listAccounts, updateAccount, createAccount, deleteAccount, mutateAccount, readAccount } from './config.js';
+import { listPresets, applyPreset, savePreset, deletePreset } from './presets.js';
 import { publicSettings, saveSettings } from './settings.js';
 import { tokensUsed } from './usage.js';
 import { handleEvent } from './handler.js';
@@ -78,6 +79,19 @@ async function adminApi(req, res, pathname, deps) {
       else if (req.method !== 'GET') return json(res, 405, { error: 'Niet toegestaan' });
       return json(res, 200, { settings: publicSettings() });
     }
+    if (parts[2] === 'presets') {
+      if (parts.length === 3 && req.method === 'GET') return json(res, 200, { presets: listPresets() });
+      if (parts.length === 3 && req.method === 'POST') {
+        const body = JSON.parse((await readBody(req)) || '{}');
+        savePreset(String(body.name || ''), body.description, readAccount(String(body.accountId || '')));
+        return json(res, 201, { ok: true });
+      }
+      if (parts.length === 4 && req.method === 'DELETE') {
+        deletePreset(decodeURIComponent(parts[3]));
+        return json(res, 200, { ok: true });
+      }
+      return json(res, 404, { error: 'Niet gevonden' });
+    }
     if (parts[2] !== 'accounts') return json(res, 404, { error: 'Niet gevonden' });
 
     const withUsage = account => ({ ...account, tokensUsed: tokensUsed(account.id) });
@@ -97,6 +111,11 @@ async function adminApi(req, res, pathname, deps) {
     }
     if (parts.length === 4 && req.method === 'DELETE') {
       deleteAccount(accountId);
+      return json(res, 200, { ok: true });
+    }
+    if (parts.length === 5 && parts[4] === 'preset' && req.method === 'POST') {
+      const body = JSON.parse((await readBody(req)) || '{}');
+      mutateAccount(accountId, account => applyPreset(account, String(body.name || '')));
       return json(res, 200, { ok: true });
     }
     if (parts[4] !== 'docs') return json(res, 404, { error: 'Niet gevonden' });

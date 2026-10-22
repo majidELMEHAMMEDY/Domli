@@ -10,7 +10,7 @@ process.env.ACCOUNTS_FILE = join(dir, 'accounts.json');
 process.env.DATA_DIR = dir;
 process.env.KNOWLEDGE_DIR = dir;
 
-const { checkHandoff, isAppointmentIntent } = await import('../src/guard.js');
+const { DEFAULTS, firstMatch } = await import('../src/rules.js');
 const { parseDecision } = await import('../src/ai.js');
 const { sign } = await import('../src/appointments/onlineafspraken.js');
 const { handleEvent } = await import('../src/handler.js');
@@ -56,16 +56,18 @@ function mocks(decision = { action: 'answer', reply: 'Wij zijn open van 9 tot 18
 }
 
 test('guard hands off prices, complaints and medical topics', () => {
-  assert.equal(checkHandoff('Wat kost een knipbeurt?'), 'prijs');
-  assert.equal(checkHandoff('Wat zijn de prijzen?'), 'prijs');
-  assert.equal(checkHandoff('Ik heb een klacht over gisteren'), 'klacht');
-  assert.equal(checkHandoff('Ik heb pijn na de behandeling'), 'medisch');
-  assert.equal(checkHandoff('Wanneer zijn jullie open?'), null);
+  const reasonFor = text => firstMatch(DEFAULTS.rules.filter(r => r.type === 'handoff'), text, 'handoff')?.reason ?? null;
+  assert.equal(reasonFor('Wat kost een knipbeurt?'), 'prijs');
+  assert.equal(reasonFor('Wat zijn de prijzen?'), 'prijs');
+  assert.equal(reasonFor('Ik heb een klacht over gisteren'), 'klacht');
+  assert.equal(reasonFor('Ik heb pijn na de behandeling'), 'medisch');
+  assert.equal(reasonFor('Wanneer zijn jullie open?'), null);
 });
 
 test('appointment intent', () => {
-  assert.equal(isAppointmentIntent('Kan ik een afspraak maken?'), true);
-  assert.equal(isAppointmentIntent('Waar kan ik parkeren?'), false);
+  const intent = text => Boolean(firstMatch(DEFAULTS.rules, text, 'appointment'));
+  assert.equal(intent('Kan ik een afspraak maken?'), true);
+  assert.equal(intent('Waar kan ik parkeren?'), false);
 });
 
 test('parseDecision treats garbage as handoff', () => {

@@ -1,5 +1,6 @@
 import { readFileSync, writeFileSync, existsSync, renameSync } from 'node:fs';
 import { join } from 'node:path';
+import { effectiveRules, effectiveBehaviour, normalizeRules, validateBehaviour, DEFAULTS } from './rules.js';
 
 export const env = {
   port: Number(process.env.PORT || 3100),
@@ -20,7 +21,7 @@ export function getAccount(accountId) {
   const accounts = JSON.parse(readFileSync(env.accountsFile, 'utf8'));
   const account = accounts[String(accountId)];
   if (!account || account.enabled !== true) return null;
-  return { mode: 'draft', monthlyTokenCap: DEFAULT_TOKEN_CAP, ...account };
+  return { mode: 'draft', monthlyTokenCap: DEFAULT_TOKEN_CAP, ...account, rules: effectiveRules(account), ...effectiveBehaviour(account) };
 }
 
 export const MAX_INSTRUCTIONS = 2000;
@@ -32,25 +33,37 @@ function readAccounts() {
 
 // Public view for the admin page: secrets are never included, only whether they are set.
 export function listAccounts() {
-  return Object.entries(readAccounts()).map(([id, a]) => ({
-    id,
-    businessName: a.businessName,
-    enabled: a.enabled === true,
-    mode: a.mode || 'draft',
-    answerPrices: a.answerPrices === true,
-    instructions: a.instructions || '',
-    handoffAgentId: a.handoffAgentId || null,
-    monthlyTokenCap: a.monthlyTokenCap || DEFAULT_TOKEN_CAP,
-    botTokenSet: Boolean(a.chatwootBotToken),
-    appointments: a.appointments
-      ? {
-          provider: a.appointments.provider || 'link',
-          bookingUrl: a.appointments.bookingUrl || '',
-          appointmentTypeId: a.appointments.appointmentTypeId || '',
-          apiKeySet: Boolean(a.appointments.apiKey && a.appointments.apiSecret),
-        }
-      : { provider: 'none', bookingUrl: '', appointmentTypeId: '', apiKeySet: false },
-  }));
+  return Object.entries(readAccounts()).map(([id, a]) => {
+    const rules = effectiveRules(a);
+    const behaviour = effectiveBehaviour(a);
+    return {
+      id,
+      businessName: a.businessName,
+      enabled: a.enabled === true,
+      mode: a.mode || 'draft',
+      answerPrices: !rules.find(rule => rule.id === 'prices')?.enabled,
+      instructions: a.instructions || '',
+      handoffAgentId: a.handoffAgentId || null,
+      monthlyTokenCap: a.monthlyTokenCap || DEFAULT_TOKEN_CAP,
+      botTokenSet: Boolean(a.chatwootBotToken),
+      rules,
+      languages: behaviour.languages,
+      unknownBehavior: behaviour.unknownBehavior,
+      handoffMessage: behaviour.handoffMessage,
+      promptTemplate: behaviour.promptTemplate,
+      defaultPromptTemplate: DEFAULTS.promptTemplate,
+      assistantName: behaviour.assistantName,
+      model: behaviour.model,
+      appointments: a.appointments
+        ? {
+            provider: a.appointments.provider || 'link',
+            bookingUrl: a.appointments.bookingUrl || '',
+            appointmentTypeId: a.appointments.appointmentTypeId || '',
+            apiKeySet: Boolean(a.appointments.apiKey && a.appointments.apiSecret),
+          }
+        : { provider: 'none', bookingUrl: '', appointmentTypeId: '', apiKeySet: false },
+    };
+  });
 }
 
 function writeAccounts(accounts) {
@@ -89,7 +102,18 @@ export function updateAccount(accountId, patch) {
   if (!account) throw new Error('Onbekend account');
 
   if ('enabled' in patch) account.enabled = patch.enabled === true;
-  if ('answerPrices' in patch) account.answerPrices = patch.answerPrices === true;
+  Object.assign(account, validateBehaviour(patch));
+  if ('rules' in patch) {
+    account.rules = normalizeRules(patch.rules);
+    delete account.answerPrices;
+    delete account.handoffDemo;
+  }
+  // Old switch, still accepted: it edits the "prices" rule.
+  if ('answerPrices' in patch) {
+    account.rules = normalizeRules(effectiveRules(account));
+    account.rules.find(rule => rule.id === 'prices').enabled = patch.answerPrices !== true;
+    delete account.answerPrices;
+  }
   if ('mode' in patch) {
     if (!['draft', 'auto'].includes(patch.mode)) throw new Error('Ongeldige modus');
     account.mode = patch.mode;
@@ -142,4 +166,19 @@ export function updateAccount(accountId, patch) {
     }
   }
   writeAccounts(accounts);
+}
+
+// Used by the preset endpoints (presets.js imports this file, so the glue lives in the server).
+export function mutateAccount(accountId, change) {
+  const accounts = readAccounts();
+  const account = accounts[String(accountId)];
+  if (!account) throw new Error('Onbekend account');
+  change(account);
+  writeAccounts(accounts);
+}
+
+export function readAccount(accountId) {
+  const account = readAccounts()[String(accountId)];
+  if (!account) throw new Error('Onbekend account');
+  return { ...account, rules: effectiveRules(account), ...effectiveBehaviour(account) };
 }

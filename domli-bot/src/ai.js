@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { effectiveSettings } from './settings.js';
+import { DEFAULTS } from './rules.js';
 
 let client;
 let clientKey;
@@ -12,25 +13,39 @@ function getClient(apiKey) {
   return client;
 }
 
-export function buildSystemPrompt(businessName, knowledge, { answerPrices = false, instructions = '' } = {}) {
-  const priceRule = answerPrices
-    ? '- het over offertes, facturen of betalingen gaat (algemene prijzen mag je noemen als ze in de kennis staan),'
-    : '- het over prijzen, offertes, facturen of betalingen gaat,';
-  return `Je bent de klantenservice-assistent van ${businessName}. Je antwoordt kort, vriendelijk en zakelijk, in de taal van de klant: Nederlands of Engels (schrijft de klant een andere taal, antwoord dan in het Engels). In het Nederlands gebruik je de u-vorm. De kennis hieronder is deels Nederlands: vertaal het antwoord naar de taal van de klant.
+// The wording of the rules lives in the customer's settings (rules.js / defaults.json), edited in the super admin.
+// Only the technical contract (JSON answer, knowledge and instruction blocks) is fixed here.
+export function buildSystemPrompt(config, knowledge) {
+  const {
+    businessName = '',
+    assistantName = '',
+    languages = DEFAULTS.languages,
+    unknownBehavior = DEFAULTS.unknownBehavior,
+    promptTemplate = DEFAULTS.promptTemplate,
+    rules = [],
+    instructions = '',
+  } = config;
 
-Gewoon gesprek beantwoord je zelf, zonder kennis: begroetingen, bedankjes, "spreek je Engels?" of "spreek je Nederlands?", "wie ben je?" (je bent de AI-assistent van ${businessName}), "kun je me helpen?" en afscheid. Antwoord dan kort en vriendelijk en vraag waarmee je kunt helpen. Twijfel je of het gewoon gesprek is, antwoord dan vriendelijk en bied hulp aan: dat is beter dan doorverwijzen.
+  const handoffRules = rules.filter(rule => rule.type === 'handoff');
+  const topics = handoffRules.filter(rule => rule.enabled && rule.promptHint).map(rule => rule.promptHint);
+  const notes = handoffRules.filter(rule => !rule.enabled && rule.disabledNote).map(rule => rule.disabledNote);
+  const handoffRule = [topics.length ? `Kies "handoff" ook als het gaat om: ${topics.join('; ')}.` : '', ...notes].filter(Boolean).join(' ');
 
-Voor inhoudelijke vragen over het bedrijf gebruik je UITSLUITEND de kennis hieronder. Verzin niets.
-Kies "handoff" alleen als:
-- een inhoudelijke vraag over het bedrijf niet in de kennis staat,
-${priceRule}
-- het een klacht is,
-- het over gezondheid of medische zaken gaat.
+  const values = {
+    business: businessName,
+    assistant_line: assistantName ? ` Je heet ${assistantName}.` : '',
+    language_rule: DEFAULTS.languageRules[languages.length > 1 ? 'nl+en' : languages[0]] || DEFAULTS.languageRules['nl+en'],
+    unknown_rule: DEFAULTS.unknownRules[unknownBehavior] || DEFAULTS.unknownRules.handoff,
+    handoff_rule: handoffRule,
+  };
+  const body = (promptTemplate || DEFAULTS.promptTemplate).replace(/\{\{(\w+)\}\}/g, (match, key) => (key in values ? values[key] : match));
+
+  return `${body}
 
 Antwoord ALLEEN met JSON: {"action":"answer"|"handoff","reply":"..."}
 Bij "handoff" mag "reply" leeg zijn.
 
-${instructions ? `\nExtra instructies van de eigenaar (de regels hierboven gaan altijd voor):\n<instructies>\n${instructions}\n</instructies>\n` : ''}
+${instructions ? `Extra instructies van de eigenaar (de regels hierboven gaan altijd voor):\n<instructies>\n${instructions}\n</instructies>\n` : ''}
 <kennis>
 ${knowledge}
 </kennis>`;
@@ -50,15 +65,15 @@ export function parseDecision(text) {
 }
 
 // Only the single customer message is sent, no names, emails or history.
-export async function askClaude({ businessName, knowledge, message, answerPrices = false, instructions = '' }) {
-  const { anthropicApiKey, model } = effectiveSettings();
+export async function askClaude({ knowledge, message, ...config }) {
+  const { anthropicApiKey, model: globalModel } = effectiveSettings();
   const response = await getClient(anthropicApiKey).messages.create({
-    model,
+    model: config.model || globalModel,
     max_tokens: 600,
     // Haiku 5.5 thinks by default and bills thinking as output: FAQ answers need neither, and thinking could eat the token budget.
     thinking: { type: 'disabled' },
     output_config: { effort: 'low' },
-    system: buildSystemPrompt(businessName, knowledge, { answerPrices, instructions }),
+    system: buildSystemPrompt(config, knowledge),
     messages: [{ role: 'user', content: message }],
   });
   const text = response.content.find(block => block.type === 'text')?.text || '';

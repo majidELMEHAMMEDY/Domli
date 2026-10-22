@@ -129,17 +129,17 @@ test('instructions can be saved from the admin, are listed, limited, and reach t
   assert.equal((await patch({ instructions: 'x'.repeat(2001) })).status, 400);
 
   const { buildSystemPrompt } = await import('../src/ai.js');
-  const prompt = buildSystemPrompt('Domli', 'kennis hier', { instructions: 'Je heet Mila.' });
+  const prompt = buildSystemPrompt({ businessName: 'Domli', instructions: 'Je heet Mila.', rules: [] }, 'kennis hier');
   assert.ok(prompt.includes('<instructies>\nJe heet Mila.\n</instructies>'));
-  assert.ok(prompt.indexOf('Kies "handoff"') < prompt.indexOf('<instructies>'), 'rules come before owner instructions');
-  assert.ok(!buildSystemPrompt('Domli', 'k').includes('<instructies>'));
+  assert.ok(prompt.indexOf('Voor inhoudelijke vragen') < prompt.indexOf('<instructies>'), 'rules come before owner instructions');
+  assert.ok(!buildSystemPrompt({ businessName: 'Domli', rules: [] }, 'k').includes('<instructies>'));
 
   let seen;
   const deps = {
     chatwoot: { sendReply: async () => {}, sendNote: async () => {}, handoffToHuman: async () => {} },
     askClaude: async args => { seen = args; return { decision: { action: 'answer', reply: 'Hoi' }, usage: { input: 1, output: 1 } }; },
   };
-  const ev = { event: 'message_created', message_type: 'incoming', content: 'Hallo daar', account: { id: 1 }, conversation: { id: 5 } };
+  const ev = { event: 'message_created', message_type: 'incoming', content: 'Waar zijn jullie gevestigd?', account: { id: 1 }, conversation: { id: 5 } };
   await handleEvent(ev, deps);
   assert.equal(seen.instructions, 'Je heet Mila. Wees kort.');
 });

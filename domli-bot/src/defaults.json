@@ -1,0 +1,331 @@
+{
+  "languages": [
+    "nl",
+    "en"
+  ],
+  "unknownBehavior": "handoff",
+  "handoffMessage": {
+    "nl": "Ik heb uw vraag doorgegeven aan een medewerker. U krijgt zo snel mogelijk antwoord.",
+    "en": "I've passed your question on to a colleague. You'll get a reply as soon as possible."
+  },
+  "promptTemplate": "Je bent de klantenservice-assistent van {{business}}.{{assistant_line}} Je antwoordt kort, vriendelijk en zakelijk. {{language_rule}}\n\nGewoon gesprek beantwoord je zelf, zonder kennis: begroetingen, bedankjes, \"spreek je Engels?\", \"wie ben je?\" (je bent de AI-assistent van {{business}}), \"kun je me helpen?\" en afscheid. Antwoord kort en vriendelijk en vraag waarmee je kunt helpen. Twijfel je of het gewoon gesprek is, antwoord dan vriendelijk en bied hulp aan: dat is beter dan doorverwijzen.\n\nVoor inhoudelijke vragen over het bedrijf gebruik je UITSLUITEND de kennis hieronder. Verzin niets. Vragen over pakketten, functies, werkwijze en hoe iets werkt beantwoord je volledig vanuit de kennis. Kun je maar een deel beantwoorden, beantwoord dan dat deel.\n{{unknown_rule}}\n{{handoff_rule}}",
+  "languageRules": {
+    "nl+en": "Antwoord in de taal van de klant: Nederlands of Engels (schrijft de klant een andere taal, antwoord dan in het Engels). In het Nederlands gebruik je de u-vorm. De kennis is deels Nederlands: vertaal het antwoord naar de taal van de klant.",
+    "nl": "Antwoord altijd in het Nederlands, met de u-vorm.",
+    "en": "Always answer in English. The knowledge may be in Dutch: translate your answer."
+  },
+  "unknownRules": {
+    "handoff": "Staat een inhoudelijke vraag over het bedrijf niet in de kennis, kies dan \"handoff\".",
+    "say_unknown": "Staat het antwoord niet in de kennis, zeg dan eerlijk dat je het niet weet en leg uit wat een medewerker of een gratis demo voor de klant kan doen. Kies dan \"answer\", niet \"handoff\"."
+  },
+  "rules": [
+    {
+      "id": "complaints",
+      "type": "handoff",
+      "name": "Complaints",
+      "locked": true,
+      "enabled": true,
+      "reason": "klacht",
+      "maxWords": 0,
+      "promptHint": "een klacht",
+      "triggers": [
+        "klacht*",
+        "ontevreden",
+        "boos",
+        "slecht*",
+        "schandalig",
+        "aansprakelijk*",
+        "advocaat",
+        "schadevergoeding",
+        "teleurgesteld",
+        "complaint*",
+        "complain*",
+        "unhappy",
+        "angry",
+        "terrible",
+        "awful",
+        "lawyer",
+        "compensation",
+        "disappointed",
+        "sue",
+        "scam",
+        "fraud*"
+      ],
+      "message": {
+        "nl": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "medical",
+      "type": "handoff",
+      "name": "Health and medical",
+      "locked": true,
+      "enabled": true,
+      "reason": "medisch",
+      "maxWords": 0,
+      "promptHint": "gezondheid of medische zaken",
+      "triggers": [
+        "pijn",
+        "medicijn*",
+        "medicatie",
+        "symptom*",
+        "klachten van",
+        "huisarts",
+        "arts",
+        "diagnose*",
+        "ziek*",
+        "bloed*",
+        "allergi*",
+        "zwanger*",
+        "ontsteking",
+        "behandeling",
+        "recept",
+        "pain",
+        "medicine",
+        "medication",
+        "doctor",
+        "diagnos*",
+        "sick",
+        "illness",
+        "blood",
+        "allerg*",
+        "pregnan*",
+        "infection",
+        "treatment",
+        "prescription",
+        "disease"
+      ],
+      "message": {
+        "nl": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "prices",
+      "type": "handoff",
+      "name": "Prices and payments",
+      "locked": false,
+      "enabled": true,
+      "reason": "prijs",
+      "maxWords": 0,
+      "promptHint": "prijzen, offertes, facturen of betalingen",
+      "disabledNote": "Je mag prijzen en pakketten noemen die in de kennis staan. Offertes op maat, facturen en betalingsproblemen gaan wel naar een mens.",
+      "triggers": [
+        "prijs",
+        "prijzen",
+        "kost",
+        "kosten",
+        "tarief",
+        "tarieven",
+        "offerte",
+        "korting",
+        "factuur",
+        "betalen",
+        "terugbetal*",
+        "restitutie",
+        "price",
+        "prices",
+        "pricing",
+        "cost",
+        "costs",
+        "quote",
+        "quotation",
+        "discount",
+        "invoice",
+        "refund",
+        "payment",
+        "payments",
+        "pay"
+      ],
+      "message": {
+        "nl": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "demo",
+      "type": "handoff",
+      "name": "Demo or trial request",
+      "locked": false,
+      "enabled": false,
+      "reason": "demo/proefperiode",
+      "maxWords": 0,
+      "promptHint": "een aanvraag voor een demo of proefperiode",
+      "triggers": [
+        "want a demo",
+        "like a demo",
+        "need a demo",
+        "request a demo",
+        "schedule a demo",
+        "book a demo",
+        "arrange a demo",
+        "get a demo",
+        "can i get a demo",
+        "free trial",
+        "start a trial",
+        "sign up",
+        "signup",
+        "try it out",
+        "talk to sales",
+        "ik wil een demo",
+        "graag een demo",
+        "demo aanvragen",
+        "demo inplannen",
+        "demo plannen",
+        "proefperiode",
+        "proefabonnement",
+        "gratis proberen",
+        "aanmelden",
+        "bel me",
+        "bel mij",
+        "terugbellen"
+      ],
+      "message": {
+        "nl": "Leuk dat u interesse hebt! Een medewerker neemt zo snel mogelijk contact met u op om uw gratis demo of proefperiode in te plannen. {{booking_url}}",
+        "en": "Great to hear you're interested! A colleague will contact you shortly to arrange your free demo or trial. {{booking_url}}"
+      }
+    },
+    {
+      "id": "human",
+      "type": "handoff",
+      "name": "Asks for a person",
+      "locked": false,
+      "enabled": true,
+      "reason": "vraagt om een medewerker",
+      "maxWords": 0,
+      "promptHint": "een verzoek om een medewerker te spreken",
+      "triggers": [
+        "talk to someone",
+        "speak to someone",
+        "speak to a human",
+        "talk to a human",
+        "speak to a person",
+        "talk to a person",
+        "real person",
+        "call me",
+        "medewerker spreken",
+        "iemand spreken",
+        "met een mens",
+        "een medewerker"
+      ],
+      "message": {
+        "nl": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "appointments",
+      "type": "appointment",
+      "name": "Appointment questions",
+      "locked": false,
+      "enabled": true,
+      "reason": "",
+      "maxWords": 0,
+      "triggers": [
+        "afspraak",
+        "afspraken",
+        "boeken",
+        "inplannen",
+        "reserveren",
+        "beschikbaar*",
+        "tijdslot",
+        "verzetten",
+        "annuleren",
+        "appointment*",
+        "book",
+        "booking",
+        "reserve",
+        "schedule",
+        "reschedule",
+        "availability",
+        "available",
+        "cancel"
+      ],
+      "message": {
+        "nl": "",
+        "en": ""
+      }
+    },
+    {
+      "id": "language",
+      "type": "reply",
+      "name": "Language question",
+      "locked": false,
+      "enabled": true,
+      "reason": "",
+      "maxWords": 8,
+      "triggers": [
+        "do you speak",
+        "can you speak",
+        "could you speak",
+        "does domli speak",
+        "spreek je",
+        "spreekt u",
+        "spreek jij",
+        "spreken jullie",
+        "praat je",
+        "praten jullie",
+        "english?",
+        "engels?",
+        "dutch?",
+        "nederlands?"
+      ],
+      "message": {
+        "nl": "Ja, ik spreek Nederlands en Engels. Waarmee kan ik u helpen?",
+        "en": "Yes, I speak both English and Dutch. How can I help you?"
+      }
+    },
+    {
+      "id": "greeting",
+      "type": "reply",
+      "name": "Greeting",
+      "locked": false,
+      "enabled": true,
+      "reason": "",
+      "maxWords": 3,
+      "triggers": [
+        "hi",
+        "hey",
+        "hello",
+        "hallo",
+        "hoi",
+        "hai",
+        "goedendag",
+        "goedemorgen",
+        "goedemiddag",
+        "goedenavond",
+        "good morning",
+        "good afternoon",
+        "good evening"
+      ],
+      "message": {
+        "nl": "Hallo! Waarmee kan ik u helpen?",
+        "en": "Hello! How can I help you?"
+      }
+    },
+    {
+      "id": "thanks",
+      "type": "reply",
+      "name": "Thanks",
+      "locked": false,
+      "enabled": true,
+      "reason": "",
+      "maxWords": 4,
+      "triggers": [
+        "thanks",
+        "thank you",
+        "thx",
+        "bedankt",
+        "dank je",
+        "dank u",
+        "dankjewel",
+        "dankuwel"
+      ],
+      "message": {
+        "nl": "Graag gedaan! Kan ik u nog ergens mee helpen?",
+        "en": "You're welcome! Is there anything else I can help you with?"
+      }
+    }
+  ]
+}
