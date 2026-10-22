@@ -10,6 +10,7 @@ process.env.DATA_DIR = dir;
 process.env.ACCOUNTS_FILE = join(dir, 'accounts.json');
 process.env.ADMIN_TOKEN = 'admin-secret-token';
 process.env.BOT_WEBHOOK_SECRET = 'hook-secret';
+process.env.ANTHROPIC_API_KEY = 'k'.repeat(30);
 
 const { handleEvent, shouldHandle } = await import('../src/handler.js');
 const { detectLanguage } = await import('../src/lang.js');
@@ -151,4 +152,38 @@ test('a model handoff and an unparseable answer are told apart in the reason', a
   const m = mocks();
   m.askClaude = async () => ({ decision: parseDecision('{"action":"handoff"}'), usage: { input: 1, output: 1 } });
   assert.equal(await handleEvent(event('Wie is de eigenaar van het bedrijf?'), m), 'handoff:buiten de kennis');
+});
+
+test('askClaude reports why an answer was unusable (cut off, refused) and logs raw output only when debugging is on', async () => {
+  const Anthropic = (await import('@anthropic-ai/sdk')).default;
+  const { askClaude } = await import('../src/ai.js');
+  const reply = (stop_reason, text) => ({ stop_reason, content: text === null ? [] : [{ type: 'text', text }], usage: { input_tokens: 1, output_tokens: 1 } });
+  const ask = async response => {
+    const create = Anthropic.Messages.prototype.create;
+    Anthropic.Messages.prototype.create = async () => response;
+    const logs = [];
+    const [warn, log] = [console.warn, console.log];
+    console.warn = (...a) => logs.push(a.join(' '));
+    console.log = (...a) => logs.push(a.join(' '));
+    try {
+      return { result: await askClaude({ businessName: 'Domli', knowledge: 'k', message: 'hi' }), logs };
+    } finally {
+      Anthropic.Messages.prototype.create = create;
+      [console.warn, console.log] = [warn, log];
+    }
+  };
+  let out = await ask(reply('max_tokens', '{"action":"answer","reply":"half'));
+  assert.equal(out.result.decision.reason, 'AI-antwoord afgekapt');
+  assert.ok(out.logs.some(l => l.includes('stop_reason=max_tokens')));
+  out = await ask(reply('refusal', null));
+  assert.equal(out.result.decision.reason, 'AI weigerde te antwoorden');
+  out = await ask(reply('end_turn', 'geen json'));
+  assert.equal(out.result.decision.reason, 'ongeldig AI-antwoord');
+  out = await ask(reply('end_turn', '{"action":"answer","reply":"Yes, I speak English!"}'));
+  assert.equal(out.result.decision.action, 'answer');
+  assert.equal(out.logs.length, 0, 'no logging for a good answer without debug');
+  process.env.DEBUG_AI_OUTPUT = '1';
+  out = await ask(reply('end_turn', '{"action":"answer","reply":"Yes!"}'));
+  delete process.env.DEBUG_AI_OUTPUT;
+  assert.ok(out.logs.some(l => l.startsWith('AI debug:') && l.includes('Yes!')));
 });

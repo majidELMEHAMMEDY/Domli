@@ -93,7 +93,6 @@ export async function handleEvent(event, deps = { chatwoot, askClaude }) {
   }
 
   if (decision.action === 'handoff') {
-    if (decision.reason === 'ongeldig AI-antwoord') console.warn('AI gaf geen geldig JSON-antwoord, conversatie overgedragen');
     return handoff(decision.reason || 'onzeker');
   }
   if (account.mode === 'auto') {
