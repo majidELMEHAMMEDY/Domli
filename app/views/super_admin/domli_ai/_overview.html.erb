@@ -1,0 +1,91 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% h2 = 'text-heading-2 text-n-slate-12' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<% bot_inboxes = @inboxes.select { |inbox| inbox.agent_bot&.name == SuperAdmin::DomliAiController::BOT_NAME } %>
+
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.status_title') %></h2>
+  <p class="text-body-main text-n-slate-12">
+    <%= t(@bot_account['enabled'] ? 'super_admin.domli_ai.status_on' : 'super_admin.domli_ai.status_off') %>
+    &middot; <%= t("super_admin.domli_ai.mode_#{@bot_account['mode']}_short") %>
+    &middot; <%= t('super_admin.domli_ai.usage', used: number_with_delimiter(@bot_account['tokensUsed'].to_i), cap: number_with_delimiter(@bot_account['monthlyTokenCap'].to_i)) %>
+  </p>
+  <p class="<%= help %>">
+    <%= bot_inboxes.any? ? t('super_admin.domli_ai.connected_to', inboxes: bot_inboxes.map(&:name).join(', ')) : t('super_admin.domli_ai.not_connected') %>
+    <% unless @bot_account['botTokenSet'] %>&middot; <%= t('super_admin.domli_ai.token_missing') %><% end %>
+  </p>
+</div>
+
+<%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'overview' %>
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.settings_title') %></h2>
+  <%= hidden_field_tag :enabled, 'false', id: nil %>
+  <label class="flex items-center gap-2 text-body-main text-n-slate-12">
+    <%= check_box_tag :enabled, 'true', @bot_account['enabled'], class: ui(:checkbox) %>
+    <%= t('super_admin.domli_ai.enabled') %>
+  </label>
+  <div>
+    <%= label_tag :mode, t('super_admin.domli_ai.mode'), class: label %>
+    <%= select_tag :mode, options_for_select([[t('super_admin.domli_ai.mode_draft'), 'draft'], [t('super_admin.domli_ai.mode_auto'), 'auto']], @bot_account['mode']), class: ui(:select) %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.mode_help') %></p>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>
+
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.presets_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.presets_help') %></p>
+  <%= form_with url: super_admin_domli_ai_preset_path, method: :post, class: "flex items-end gap-3" do |form| %>
+    <%= form.hidden_field :account_id, value: customer_id %>
+    <%= form.hidden_field :tab, value: 'overview' %>
+    <div class="min-w-0 flex-1">
+      <%= form.label :preset, t('super_admin.domli_ai.preset_select'), class: label %>
+      <%= form.select :preset, @presets.map { |preset| ["#{preset['name']}#{' (built-in)' if preset['builtin']}", preset['name']] }, {}, class: ui(:select) %>
+    </div>
+    <%= render "button", label: t('super_admin.domli_ai.preset_apply'), variant: :secondary, submit: form, data: { confirm: t('super_admin.domli_ai.preset_apply_confirm') } %>
+  <% end %>
+  <ul class="divide-y divide-n-weak">
+    <% @presets.each do |preset| %>
+      <li class="flex items-center justify-between gap-3 py-2">
+        <div class="min-w-0">
+          <p class="text-body-main font-medium text-n-slate-12"><%= preset['name'] %></p>
+          <p class="text-label-small text-n-slate-11"><%= preset['description'] %></p>
+        </div>
+        <% unless preset['builtin'] %>
+          <%= render "button", label: t('super_admin.domli_ai.delete'), variant: :danger,
+                     post_to: super_admin_domli_ai_preset_delete_path(account_id: customer_id, preset: preset['name'], tab: 'overview'),
+                     data: { confirm: t('super_admin.domli_ai.preset_delete_confirm') } %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+</div>
+
+<%= form_with url: super_admin_domli_ai_presets_path, method: :post, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'overview' %>
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.preset_save_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.preset_save_help') %></p>
+  <div class="grid gap-3 sm:grid-cols-2">
+    <div>
+      <%= label_tag :preset_name, t('super_admin.domli_ai.preset_name'), class: label %>
+      <%= text_field_tag :preset_name, nil, maxlength: 40, required: true, class: ui(:input) %>
+    </div>
+    <div>
+      <%= label_tag :preset_description, t('super_admin.domli_ai.preset_description'), class: label %>
+      <%= text_field_tag :preset_description, nil, maxlength: 200, class: ui(:input) %>
+    </div>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.preset_save'), submit: form %>
+<% end %>
+
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.remove_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.remove_help') %></p>
+  <%= render "button", label: t('super_admin.domli_ai.remove'), variant: :danger,
+             post_to: super_admin_domli_ai_remove_path(account_id: customer_id, tab: 'overview'),
+             data: { confirm: t('super_admin.domli_ai.remove_confirm') } %>
+</div>

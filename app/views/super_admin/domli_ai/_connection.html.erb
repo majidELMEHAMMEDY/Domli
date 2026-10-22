@@ -1,0 +1,67 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% h2 = 'text-heading-2 text-n-slate-12' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<% bot_inboxes = @inboxes.select { |inbox| inbox.agent_bot&.name == SuperAdmin::DomliAiController::BOT_NAME } %>
+<%# ---- Connect to inbox ---- %>
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.connect_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.connect_help') %></p>
+  <% if @inboxes.empty? %>
+    <p class="text-body-main text-n-slate-11"><%= t('super_admin.domli_ai.no_inboxes') %></p>
+  <% else %>
+    <%= form_with url: super_admin_domli_ai_connect_path, method: :post, class: "flex items-end gap-3" do |form| %>
+      <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'connection' %>
+      <div class="min-w-0 flex-1">
+        <%= form.label :inbox_id, t('super_admin.domli_ai.inbox'), class: label %>
+        <%= form.select :inbox_id, @inboxes.map { |inbox| ["#{inbox.name} (#{inbox.channel_type.demodulize})", inbox.id] }, {}, class: ui(:select) %>
+      </div>
+      <%= render "button", label: t('super_admin.domli_ai.connect'), submit: form %>
+    <% end %>
+    <% bot_inboxes.each do |inbox| %>
+      <div class="flex items-center justify-between gap-3 border-t border-n-weak pt-3">
+        <p class="text-body-main text-n-slate-12"><%= t('super_admin.domli_ai.connected_inbox', name: inbox.name) %></p>
+        <%= render "button", label: t('super_admin.domli_ai.disconnect'), variant: :danger,
+                   post_to: super_admin_domli_ai_disconnect_path(account_id: customer_id, inbox_id: inbox.id, tab: 'connection'),
+                   data: { confirm: t('super_admin.domli_ai.disconnect_confirm') } %>
+      </div>
+    <% end %>
+  <% end %>
+</div>
+
+
+<%# ---- Appointments ---- %>
+<% appointments = @bot_account['appointments'] %>
+<%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'connection' %>
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.appointments_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.appointments_help') %></p>
+  <div>
+    <%= label_tag :appointment_provider, t('super_admin.domli_ai.appointments_provider'), class: label %>
+    <%= select_tag :appointment_provider, options_for_select([[t('super_admin.domli_ai.provider_none'), 'none'], [t('super_admin.domli_ai.provider_link'), 'link'], [t('super_admin.domli_ai.provider_onlineafspraken'), 'onlineafspraken']], appointments['provider']), class: ui(:select) %>
+  </div>
+  <div>
+    <%= label_tag :appointment_booking_url, t('super_admin.domli_ai.booking_url'), class: label %>
+    <%= url_field_tag :appointment_booking_url, appointments['bookingUrl'], placeholder: 'https://jouwbedrijf.onlineafspraken.nl', class: ui(:input) %>
+  </div>
+  <div>
+    <%= label_tag :appointment_type_id, t('super_admin.domli_ai.appointment_type_id'), class: label %>
+    <%= text_field_tag :appointment_type_id, appointments['appointmentTypeId'], class: ui(:input) %>
+  </div>
+  <div class="grid gap-3 sm:grid-cols-2">
+    <div>
+      <%= label_tag :appointment_api_key, t('super_admin.domli_ai.appointment_api_key'), class: label %>
+      <%= password_field_tag :appointment_api_key, nil, autocomplete: 'off', placeholder: (appointments['apiKeySet'] ? t('super_admin.domli_ai.secret_saved') : nil), class: ui(:input) %>
+    </div>
+    <div>
+      <%= label_tag :appointment_api_secret, t('super_admin.domli_ai.appointment_api_secret'), class: label %>
+      <%= password_field_tag :appointment_api_secret, nil, autocomplete: 'off', placeholder: (appointments['apiKeySet'] ? t('super_admin.domli_ai.secret_saved') : nil), class: ui(:input) %>
+    </div>
+  </div>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.appointments_api_note') %></p>
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>
+

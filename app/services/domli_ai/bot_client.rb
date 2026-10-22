@@ -28,6 +28,22 @@ class DomliAi::BotClient
     request(:delete, "/accounts/#{account_id}")
   end
 
+  def presets
+    request(:get, '/presets').fetch('presets')
+  end
+
+  def apply_preset(account_id, name)
+    request(:post, "/accounts/#{account_id}/preset", { name: name })
+  end
+
+  def save_preset(name:, description:, account_id:)
+    request(:post, '/presets', { name: name, description: description, accountId: account_id.to_s })
+  end
+
+  def delete_preset(name)
+    request(:delete, "/presets/#{ERB::Util.url_encode(name)}")
+  end
+
   def accounts
     request(:get, '/accounts').fetch('accounts')
   end

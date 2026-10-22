@@ -1,0 +1,9 @@
+<%# locals: (customer_id:) -%>
+<nav class="flex flex-wrap gap-x-1 gap-y-1 border-b border-n-weak" aria-label="<%= t('super_admin.domli_ai.title') %>">
+  <% SuperAdmin::DomliAiController::TABS.each do |tab| %>
+    <% active = current_tab == tab %>
+    <%= link_to t("super_admin.domli_ai.tab_#{tab}"), super_admin_domli_ai_path(account_id: customer_id, tab: tab),
+                class: class_names("-mb-px border-b-2 px-3 py-2 text-body-main", "border-n-brand font-medium text-n-slate-12" => active, "border-transparent text-n-slate-11 hover:text-n-slate-12" => !active),
+                aria: { current: (active ? 'page' : nil) } %>
+  <% end %>
+</nav>

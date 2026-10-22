@@ -1,8 +1,4 @@
 <% content_for(:title) { t('super_admin.domli_ai.title') } %>
-<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
-<% h2 = 'text-heading-2 text-n-slate-12' %>
-<% help = 'text-label-small text-n-slate-11' %>
-<% label = 'text-label text-n-slate-12' %>
 
 <%= render "section", title: t('super_admin.domli_ai.title'), description: t('super_admin.domli_ai.description'), icon: 'i-lucide-bot' do %>
   <% if !@configured %>
@@ -11,231 +7,27 @@
     <%= render "alert" do %><%= @error %><% end %>
   <% else %>
     <% customer_id = @customer&.id %>
+    <%= render "super_admin/domli_ai/tabs", customer_id: customer_id %>
 
-    <%# ---- Global settings ---- %>
-    <%= form_with url: super_admin_domli_ai_settings_path, method: :put, class: card do |form| %>
-      <%= form.hidden_field :account_id, value: customer_id %>
-      <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.global_title') %></h2>
-      <div>
-        <%= label_tag :anthropic_api_key, t('super_admin.domli_ai.api_key'), class: label %>
-        <%= password_field_tag :anthropic_api_key, nil, autocomplete: 'off', placeholder: (@settings['anthropicApiKeySet'] ? t('super_admin.domli_ai.api_key_saved', hint: @settings['anthropicApiKeyHint']) : 'sk-ant-...'), class: ui(:input) %>
-        <p class="<%= help %>">
-          <% if @settings['anthropicApiKeySet'] %>
-            <%= t("super_admin.domli_ai.api_key_source_#{@settings['anthropicApiKeySource']}") %>
-          <% else %>
-            <%= t('super_admin.domli_ai.api_key_missing') %>
-          <% end %>
-          <%= t('super_admin.domli_ai.api_key_help') %>
-        </p>
-        <% if @settings['anthropicApiKeySource'] == 'settings' %>
-          <label class="mt-2 flex items-center gap-2 text-body-main text-n-slate-12">
-            <%= check_box_tag :clear_api_key, '1', false, class: ui(:checkbox) %>
-            <%= t('super_admin.domli_ai.clear_api_key') %>
-          </label>
-        <% end %>
-      </div>
-      <div>
-        <%= label_tag :model, t('super_admin.domli_ai.model'), class: label %>
-        <%= text_field_tag :model, @settings['model'], class: ui(:input) %>
-        <p class="<%= help %>"><%= t('super_admin.domli_ai.model_help') %></p>
-      </div>
-      <div>
-        <%= label_tag :public_url, t('super_admin.domli_ai.public_url'), class: label %>
-        <%= url_field_tag :public_url, @settings['publicUrl'], placeholder: 'https://bot.domli.nl', class: ui(:input) %>
-        <p class="<%= help %>"><%= t('super_admin.domli_ai.public_url_help') %></p>
-      </div>
-      <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
-    <% end %>
-
-    <%# ---- Customer picker ---- %>
-    <% if @customer.nil? %>
+    <% if current_tab == 'global' %>
+      <%= render "super_admin/domli_ai/global", customer_id: customer_id %>
+    <% elsif @customer.nil? %>
       <%= render "alert" do %><%= t('super_admin.domli_ai.no_accounts') %><% end %>
     <% else %>
       <% enabled_ids = @bot_accounts.select { |a| a['enabled'] }.map { |a| a['id'] } %>
       <%= form_with url: super_admin_domli_ai_path, method: :get, class: "flex items-end gap-3" do |form| %>
+        <%= form.hidden_field :tab, value: current_tab %>
         <div class="min-w-0 flex-1">
-          <%= form.label :account_id, t('super_admin.domli_ai.customer'), class: label %>
+          <%= form.label :account_id, t('super_admin.domli_ai.customer'), class: "text-label text-n-slate-12" %>
           <%= form.select :account_id, @customers.map { |a| ["#{a.name} (##{a.id})#{' ✓' if enabled_ids.include?(a.id.to_s)}", a.id] }, { selected: customer_id }, class: ui(:select) %>
         </div>
         <%= render "button", label: t('super_admin.domli_ai.show'), variant: :secondary, submit: form %>
       <% end %>
 
       <% if @bot_account.nil? %>
-        <%= form_with url: super_admin_domli_ai_enable_path, method: :post, class: card do |form| %>
-          <%= form.hidden_field :account_id, value: customer_id %>
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.not_set_up_title', name: @customer.name) %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.not_set_up_help') %></p>
-          <%= render "button", label: t('super_admin.domli_ai.set_up'), submit: form %>
-        <% end %>
+        <%= render "super_admin/domli_ai/setup", customer_id: customer_id %>
       <% else %>
-        <% bot_inboxes = @inboxes.select { |inbox| inbox.agent_bot&.name == SuperAdmin::DomliAiController::BOT_NAME } %>
-
-        <%# ---- Status ---- %>
-        <div class="<%= card %>">
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.status_title') %></h2>
-          <p class="text-body-main text-n-slate-12">
-            <%= t(@bot_account['enabled'] ? 'super_admin.domli_ai.status_on' : 'super_admin.domli_ai.status_off') %>
-            &middot; <%= t("super_admin.domli_ai.mode_#{@bot_account['mode']}_short") %>
-            &middot; <%= t('super_admin.domli_ai.usage', used: number_with_delimiter(@bot_account['tokensUsed'].to_i), cap: number_with_delimiter(@bot_account['monthlyTokenCap'].to_i)) %>
-          </p>
-          <p class="<%= help %>">
-            <%= bot_inboxes.any? ? t('super_admin.domli_ai.connected_to', inboxes: bot_inboxes.map(&:name).join(', ')) : t('super_admin.domli_ai.not_connected') %>
-            <% unless @bot_account['botTokenSet'] %>&middot; <%= t('super_admin.domli_ai.token_missing') %><% end %>
-          </p>
-        </div>
-
-        <%# ---- Connect to inbox ---- %>
-        <div class="<%= card %>">
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.connect_title') %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.connect_help') %></p>
-          <% if @inboxes.empty? %>
-            <p class="text-body-main text-n-slate-11"><%= t('super_admin.domli_ai.no_inboxes') %></p>
-          <% else %>
-            <%= form_with url: super_admin_domli_ai_connect_path, method: :post, class: "flex items-end gap-3" do |form| %>
-              <%= form.hidden_field :account_id, value: customer_id %>
-              <div class="min-w-0 flex-1">
-                <%= form.label :inbox_id, t('super_admin.domli_ai.inbox'), class: label %>
-                <%= form.select :inbox_id, @inboxes.map { |inbox| ["#{inbox.name} (#{inbox.channel_type.demodulize})", inbox.id] }, {}, class: ui(:select) %>
-              </div>
-              <%= render "button", label: t('super_admin.domli_ai.connect'), submit: form %>
-            <% end %>
-            <% bot_inboxes.each do |inbox| %>
-              <div class="flex items-center justify-between gap-3 border-t border-n-weak pt-3">
-                <p class="text-body-main text-n-slate-12"><%= t('super_admin.domli_ai.connected_inbox', name: inbox.name) %></p>
-                <%= render "button", label: t('super_admin.domli_ai.disconnect'), variant: :danger,
-                           post_to: super_admin_domli_ai_disconnect_path(account_id: customer_id, inbox_id: inbox.id),
-                           data: { confirm: t('super_admin.domli_ai.disconnect_confirm') } %>
-              </div>
-            <% end %>
-          <% end %>
-        </div>
-
-        <%# ---- Settings ---- %>
-        <%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
-          <%= form.hidden_field :account_id, value: customer_id %>
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.settings_title') %></h2>
-          <%= hidden_field_tag :enabled, 'false', id: nil %>
-          <label class="flex items-center gap-2 text-body-main text-n-slate-12">
-            <%= check_box_tag :enabled, 'true', @bot_account['enabled'], class: ui(:checkbox) %>
-            <%= t('super_admin.domli_ai.enabled') %>
-          </label>
-          <div>
-            <%= label_tag :mode, t('super_admin.domli_ai.mode'), class: label %>
-            <%= select_tag :mode, options_for_select([[t('super_admin.domli_ai.mode_draft'), 'draft'], [t('super_admin.domli_ai.mode_auto'), 'auto']], @bot_account['mode']), class: ui(:select) %>
-            <p class="<%= help %>"><%= t('super_admin.domli_ai.mode_help') %></p>
-          </div>
-          <div>
-            <%= label_tag :business_name, t('super_admin.domli_ai.business_name'), class: label %>
-            <%= text_field_tag :business_name, @bot_account['businessName'], maxlength: 100, class: ui(:input) %>
-          </div>
-          <div>
-            <%= label_tag :monthly_token_cap, t('super_admin.domli_ai.monthly_cap'), class: label %>
-            <%= number_field_tag :monthly_token_cap, @bot_account['monthlyTokenCap'], min: 1000, step: 1000, class: ui(:input) %>
-            <p class="<%= help %>"><%= t('super_admin.domli_ai.monthly_cap_help') %></p>
-          </div>
-          <div>
-            <%= label_tag :handoff_agent_id, t('super_admin.domli_ai.handoff_agent'), class: label %>
-            <%= select_tag :handoff_agent_id, options_for_select([[t('super_admin.domli_ai.handoff_agent_none'), '']] + @agents.map { |agent| ["#{agent.name} (#{agent.email})", agent.id] }, @bot_account['handoffAgentId']), class: ui(:select) %>
-            <p class="<%= help %>"><%= t('super_admin.domli_ai.handoff_agent_help') %></p>
-          </div>
-          <%= hidden_field_tag :answer_prices, 'false', id: nil %>
-          <label class="flex items-center gap-2 text-body-main text-n-slate-12">
-            <%= check_box_tag :answer_prices, 'true', @bot_account['answerPrices'], class: ui(:checkbox) %>
-            <%= t('super_admin.domli_ai.answer_prices') %>
-          </label>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.answer_prices_help') %></p>
-          <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
-        <% end %>
-
-        <%# ---- Instructions ---- %>
-        <%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
-          <%= form.hidden_field :account_id, value: customer_id %>
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.instructions_title') %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.instructions_help') %></p>
-          <%= text_area_tag :instructions, @bot_account['instructions'], rows: 8, maxlength: 2000, placeholder: t('super_admin.domli_ai.instructions_placeholder'), class: ui(:input) %>
-          <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
-        <% end %>
-
-        <%# ---- Appointments ---- %>
-        <% appointments = @bot_account['appointments'] %>
-        <%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
-          <%= form.hidden_field :account_id, value: customer_id %>
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.appointments_title') %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.appointments_help') %></p>
-          <div>
-            <%= label_tag :appointment_provider, t('super_admin.domli_ai.appointments_provider'), class: label %>
-            <%= select_tag :appointment_provider, options_for_select([[t('super_admin.domli_ai.provider_none'), 'none'], [t('super_admin.domli_ai.provider_link'), 'link'], [t('super_admin.domli_ai.provider_onlineafspraken'), 'onlineafspraken']], appointments['provider']), class: ui(:select) %>
-          </div>
-          <div>
-            <%= label_tag :appointment_booking_url, t('super_admin.domli_ai.booking_url'), class: label %>
-            <%= url_field_tag :appointment_booking_url, appointments['bookingUrl'], placeholder: 'https://jouwbedrijf.onlineafspraken.nl', class: ui(:input) %>
-          </div>
-          <div>
-            <%= label_tag :appointment_type_id, t('super_admin.domli_ai.appointment_type_id'), class: label %>
-            <%= text_field_tag :appointment_type_id, appointments['appointmentTypeId'], class: ui(:input) %>
-          </div>
-          <div class="grid gap-3 sm:grid-cols-2">
-            <div>
-              <%= label_tag :appointment_api_key, t('super_admin.domli_ai.appointment_api_key'), class: label %>
-              <%= password_field_tag :appointment_api_key, nil, autocomplete: 'off', placeholder: (appointments['apiKeySet'] ? t('super_admin.domli_ai.secret_saved') : nil), class: ui(:input) %>
-            </div>
-            <div>
-              <%= label_tag :appointment_api_secret, t('super_admin.domli_ai.appointment_api_secret'), class: label %>
-              <%= password_field_tag :appointment_api_secret, nil, autocomplete: 'off', placeholder: (appointments['apiKeySet'] ? t('super_admin.domli_ai.secret_saved') : nil), class: ui(:input) %>
-            </div>
-          </div>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.appointments_api_note') %></p>
-          <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
-        <% end %>
-
-        <%# ---- Knowledge ---- %>
-        <div class="<%= card %>">
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.knowledge_title') %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.knowledge_help') %></p>
-
-          <%= form_with url: super_admin_domli_ai_documents_path, method: :post, class: "space-y-3" do |form| %>
-            <%= form.hidden_field :account_id, value: customer_id %>
-            <%= text_field_tag :title, nil, maxlength: 120, required: true, placeholder: t('super_admin.domli_ai.title_placeholder'), class: ui(:input) %>
-            <%= text_area_tag :text, nil, rows: 6, required: true, placeholder: t('super_admin.domli_ai.text_placeholder'), class: ui(:input) %>
-            <%= render "button", label: t('super_admin.domli_ai.add_text'), variant: :secondary, submit: form %>
-          <% end %>
-
-          <%= form_with url: super_admin_domli_ai_document_import_path, method: :post, class: "space-y-3" do |form| %>
-            <%= form.hidden_field :account_id, value: customer_id %>
-            <%= url_field_tag :url, nil, required: true, placeholder: t('super_admin.domli_ai.url_placeholder'), class: ui(:input) %>
-            <%= render "button", label: t('super_admin.domli_ai.import_url'), variant: :secondary, submit: form %>
-          <% end %>
-        </div>
-
-        <div class="<%= card %>">
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.documents_title') %></h2>
-          <% if @documents.empty? %>
-            <p class="text-body-main text-n-slate-11"><%= t('super_admin.domli_ai.no_documents') %></p>
-          <% else %>
-            <ul class="divide-y divide-n-weak">
-              <% @documents.each do |doc| %>
-                <li class="flex items-center justify-between gap-3 py-3">
-                  <div class="min-w-0">
-                    <p class="truncate text-body-main font-medium text-n-slate-12"><%= doc['title'] %></p>
-                    <p class="truncate text-label-small text-n-slate-11"><%= doc['url'].presence || t('super_admin.domli_ai.source_text') %> &middot; <%= t('super_admin.domli_ai.characters', count: doc['chars'].to_i) %></p>
-                  </div>
-                  <%= render "button", label: t('super_admin.domli_ai.delete'), variant: :danger,
-                             post_to: super_admin_domli_ai_document_delete_path(id: doc['id'], account_id: customer_id),
-                             data: { confirm: t('super_admin.domli_ai.delete_confirm') } %>
-                </li>
-              <% end %>
-            </ul>
-          <% end %>
-        </div>
-
-        <%# ---- Remove ---- %>
-        <div class="<%= card %>">
-          <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.remove_title') %></h2>
-          <p class="<%= help %>"><%= t('super_admin.domli_ai.remove_help') %></p>
-          <%= render "button", label: t('super_admin.domli_ai.remove'), variant: :danger,
-                     post_to: super_admin_domli_ai_remove_path(account_id: customer_id),
-                     data: { confirm: t('super_admin.domli_ai.remove_confirm') } %>
-        </div>
+        <%= render "super_admin/domli_ai/#{current_tab}", customer_id: customer_id %>
       <% end %>
     <% end %>
   <% end %>

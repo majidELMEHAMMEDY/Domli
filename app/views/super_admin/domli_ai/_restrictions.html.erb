@@ -1,0 +1,18 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+
+<%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'restrictions' %>
+  <div>
+    <%= label_tag :handoff_agent_id, t('super_admin.domli_ai.handoff_agent'), class: label %>
+    <%= select_tag :handoff_agent_id, options_for_select([[t('super_admin.domli_ai.handoff_agent_none'), '']] + @agents.map { |agent| ["#{agent.name} (#{agent.email})", agent.id] }, @bot_account['handoffAgentId']), class: ui(:select) %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.handoff_agent_help') %></p>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>
+
+<%= render "super_admin/domli_ai/rules_editor", customer_id: customer_id, scope: 'handoff', types: %w[handoff appointment],
+           title: t('super_admin.domli_ai.restrictions_title'), help: t('super_admin.domli_ai.restrictions_help') %>

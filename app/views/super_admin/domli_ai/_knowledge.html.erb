@@ -1,0 +1,47 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% h2 = 'text-heading-2 text-n-slate-12' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<%# ---- Knowledge ---- %>
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.knowledge_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.knowledge_help') %></p>
+
+  <%= form_with url: super_admin_domli_ai_documents_path, method: :post, class: "space-y-3" do |form| %>
+    <%= form.hidden_field :account_id, value: customer_id %>
+    <%= form.hidden_field :tab, value: 'knowledge' %>
+    <%= text_field_tag :title, nil, maxlength: 120, required: true, placeholder: t('super_admin.domli_ai.title_placeholder'), class: ui(:input) %>
+    <%= text_area_tag :text, nil, rows: 6, required: true, placeholder: t('super_admin.domli_ai.text_placeholder'), class: ui(:input) %>
+    <%= render "button", label: t('super_admin.domli_ai.add_text'), variant: :secondary, submit: form %>
+  <% end %>
+
+  <%= form_with url: super_admin_domli_ai_document_import_path, method: :post, class: "space-y-3" do |form| %>
+    <%= form.hidden_field :account_id, value: customer_id %>
+    <%= form.hidden_field :tab, value: 'knowledge' %>
+    <%= url_field_tag :url, nil, required: true, placeholder: t('super_admin.domli_ai.url_placeholder'), class: ui(:input) %>
+    <%= render "button", label: t('super_admin.domli_ai.import_url'), variant: :secondary, submit: form %>
+  <% end %>
+</div>
+
+<div class="<%= card %>">
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.documents_title') %></h2>
+  <% if @documents.empty? %>
+    <p class="text-body-main text-n-slate-11"><%= t('super_admin.domli_ai.no_documents') %></p>
+  <% else %>
+    <ul class="divide-y divide-n-weak">
+      <% @documents.each do |doc| %>
+        <li class="flex items-center justify-between gap-3 py-3">
+          <div class="min-w-0">
+            <p class="truncate text-body-main font-medium text-n-slate-12"><%= doc['title'] %></p>
+            <p class="truncate text-label-small text-n-slate-11"><%= doc['url'].presence || t('super_admin.domli_ai.source_text') %> &middot; <%= t('super_admin.domli_ai.characters', count: doc['chars'].to_i) %></p>
+          </div>
+          <%= render "button", label: t('super_admin.domli_ai.delete'), variant: :danger,
+                     post_to: super_admin_domli_ai_document_delete_path(id: doc['id'], account_id: customer_id, tab: 'knowledge'),
+                     data: { confirm: t('super_admin.domli_ai.delete_confirm') } %>
+        </li>
+      <% end %>
+    </ul>
+  <% end %>
+</div>
+

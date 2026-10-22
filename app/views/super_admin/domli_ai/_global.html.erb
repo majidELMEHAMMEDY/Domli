@@ -1,0 +1,38 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<%= form_with url: super_admin_domli_ai_settings_path, method: :put, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'global' %>
+  <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.global_title') %></h2>
+  <div>
+    <%= label_tag :anthropic_api_key, t('super_admin.domli_ai.api_key'), class: label %>
+    <%= password_field_tag :anthropic_api_key, nil, autocomplete: 'off', placeholder: (@settings['anthropicApiKeySet'] ? t('super_admin.domli_ai.api_key_saved', hint: @settings['anthropicApiKeyHint']) : 'sk-ant-...'), class: ui(:input) %>
+    <p class="<%= help %>">
+      <% if @settings['anthropicApiKeySet'] %>
+        <%= t("super_admin.domli_ai.api_key_source_#{@settings['anthropicApiKeySource']}") %>
+      <% else %>
+        <%= t('super_admin.domli_ai.api_key_missing') %>
+      <% end %>
+      <%= t('super_admin.domli_ai.api_key_help') %>
+    </p>
+    <% if @settings['anthropicApiKeySource'] == 'settings' %>
+      <label class="mt-2 flex items-center gap-2 text-body-main text-n-slate-12">
+        <%= check_box_tag :clear_api_key, '1', false, class: ui(:checkbox) %>
+        <%= t('super_admin.domli_ai.clear_api_key') %>
+      </label>
+    <% end %>
+  </div>
+  <div>
+    <%= label_tag :model, t('super_admin.domli_ai.model'), class: label %>
+    <%= text_field_tag :model, @settings['model'], class: ui(:input) %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.model_help') %></p>
+  </div>
+  <div>
+    <%= label_tag :public_url, t('super_admin.domli_ai.public_url'), class: label %>
+    <%= url_field_tag :public_url, @settings['publicUrl'], placeholder: 'https://bot.domli.nl', class: ui(:input) %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.public_url_help') %></p>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>

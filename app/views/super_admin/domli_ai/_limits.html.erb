@@ -1,0 +1,15 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<%= form_with url: super_admin_domli_ai_path, method: :patch, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'limits' %>
+  <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.limits_title') %></h2>
+  <p class="text-body-main text-n-slate-12"><%= t('super_admin.domli_ai.usage', used: number_with_delimiter(@bot_account['tokensUsed'].to_i), cap: number_with_delimiter(@bot_account['monthlyTokenCap'].to_i)) %></p>
+  <div>
+    <%= label_tag :monthly_token_cap, t('super_admin.domli_ai.monthly_cap'), class: "text-label text-n-slate-12" %>
+    <%= number_field_tag :monthly_token_cap, @bot_account['monthlyTokenCap'], min: 1000, step: 1000, class: ui(:input) %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.monthly_cap_help') %></p>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>

@@ -1,0 +1,61 @@
+<%# locals: (customer_id:, scope:, types:, title:, help:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% h2 = 'text-heading-2 text-n-slate-12' %>
+<% label = 'text-label text-n-slate-12' %>
+<% help_class = 'text-label-small text-n-slate-11' %>
+<% rules = @bot_account['rules'] %>
+
+<%= form_with url: super_admin_domli_ai_rules_path, method: :patch, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: current_tab %>
+  <%= hidden_field_tag :rule_scope, scope, id: nil %>
+  <h2 class="<%= h2 %>"><%= title %></h2>
+  <p class="<%= help_class %>"><%= help %></p>
+  <p class="<%= help_class %>"><%= t('super_admin.domli_ai.placeholders_help') %></p>
+
+  <% rules.each_with_index do |rule, index| %>
+    <% next unless types.include?(rule['type']) %>
+    <%= render "super_admin/domli_ai/rule", rule: rule, index: index %>
+  <% end %>
+
+  <div class="space-y-3 rounded-lg border border-dashed border-n-slate-6 p-4">
+    <h3 class="text-label text-n-slate-12"><%= t('super_admin.domli_ai.rule_add_title') %></h3>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div>
+        <%= label_tag 'new_rule_name', t('super_admin.domli_ai.rule_name'), class: label %>
+        <%= text_field_tag 'new_rule[name]', nil, id: 'new_rule_name', maxlength: 80, class: ui(:input) %>
+      </div>
+      <div>
+        <%= label_tag 'new_rule_type', t('super_admin.domli_ai.rule_type'), class: label %>
+        <%= select_tag 'new_rule[type]', options_for_select(types.map { |type| [t("super_admin.domli_ai.rule_type_#{type}"), type] }), id: 'new_rule_type', class: ui(:select) %>
+      </div>
+    </div>
+    <div>
+      <%= label_tag 'new_rule_triggers', t('super_admin.domli_ai.rule_triggers'), class: label %>
+      <%= text_area_tag 'new_rule[triggers]', nil, id: 'new_rule_triggers', rows: 3, class: ui(:input, "font-mono text-xs") %>
+      <p class="<%= help_class %>"><%= t('super_admin.domli_ai.rule_triggers_help') %></p>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div>
+        <%= label_tag 'new_rule_message_nl', t('super_admin.domli_ai.rule_message_nl'), class: label %>
+        <%= text_area_tag 'new_rule[message_nl]', nil, id: 'new_rule_message_nl', rows: 2, maxlength: 1000, class: ui(:input) %>
+      </div>
+      <div>
+        <%= label_tag 'new_rule_message_en', t('super_admin.domli_ai.rule_message_en'), class: label %>
+        <%= text_area_tag 'new_rule[message_en]', nil, id: 'new_rule_message_en', rows: 2, maxlength: 1000, class: ui(:input) %>
+      </div>
+    </div>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div>
+        <%= label_tag 'new_rule_reason', t('super_admin.domli_ai.rule_reason'), class: label %>
+        <%= text_field_tag 'new_rule[reason]', nil, id: 'new_rule_reason', maxlength: 60, class: ui(:input) %>
+      </div>
+      <div>
+        <%= label_tag 'new_rule_max_words', t('super_admin.domli_ai.rule_max_words'), class: label %>
+        <%= number_field_tag 'new_rule[max_words]', 0, id: 'new_rule_max_words', min: 0, max: 50, class: ui(:input) %>
+      </div>
+    </div>
+  </div>
+
+  <%= render "button", label: t('super_admin.domli_ai.save'), submit: form %>
+<% end %>

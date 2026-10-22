@@ -14,6 +14,9 @@ For every incoming customer message on a bot-connected inbox:
 
 Data minimisation: only the single message text is sent to Claude, no name, email, phone or history. Logs contain token counts only (`data/tokens.log`), never message content.
 
+## Behaviour is data, managed from the super admin
+Rules (hand-over, quick replies, appointments), languages, the unknown-answer policy, messages and the base prompt text live in `src/defaults.json` and `src/presets.json` and in each customer's own settings, edited on the super admin page (see docs/domli/domli-ai.md). The code only evaluates them.
+
 ## Managed from the super admin
 Everything below (API key, model, customers, instructions, knowledge, appointments, connecting to an inbox) is managed on **Super Admin -> Settings -> Assistant** (see docs/domli/domli-ai.md). Global settings are stored in `data/settings.json` (permissions 600); customers in `data/accounts.json`. Secrets are write-only through the API.
 

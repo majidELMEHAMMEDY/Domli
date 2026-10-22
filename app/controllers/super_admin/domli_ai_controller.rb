@@ -1,10 +1,13 @@
-# Manage the Domli AI assistant from the super admin: API key, per-customer settings, instructions, knowledge,
-# and connecting the assistant to a customer's inbox. The assistant itself runs in domli-bot; this page is its front door.
+# Manage the Domli AI assistant from the super admin: Claude settings, and per customer the behaviour, hand-over rules,
+# quick replies, knowledge, inbox connection and limits. The assistant itself runs in domli-bot; this page is its front door.
 class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   BOT_NAME = 'Domli AI'.freeze
+  TABS = %w[overview behavior restrictions quick_replies knowledge connection limits global].freeze
+  RULE_FIELDS = %w[id type name reason promptHint disabledNote locked].freeze
 
   before_action :ensure_configured
   before_action :set_account_id, except: [:show, :update_settings]
+  helper_method :current_tab
 
   def show
     @customers = Account.order(:id)
@@ -12,13 +15,15 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     @settings = client.settings
     @bot_accounts = client.accounts
     @bot_account = @bot_accounts.find { |account| account['id'] == @customer&.id.to_s }
-    @documents = @bot_account ? client.documents(@customer.id) : []
+    @presets = client.presets
+    @documents = @bot_account && current_tab == 'knowledge' ? client.documents(@customer.id) : []
     @inboxes = @customer ? @customer.inboxes.includes(:agent_bot).order(:id) : []
     @agents = @customer ? @customer.users.order(:name) : []
   rescue DomliAi::BotClient::Error => e
     @error = e.message
     @customers = Account.none
     @bot_accounts = []
+    @presets = []
     @documents = []
     @inboxes = []
     @agents = []
@@ -40,6 +45,23 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
 
   def update
     perform { client.update_account(@account_id, account_attributes) }
+  end
+
+  # Edits the rules shown on one tab: "handoff" (hand-over rules + appointments) or "reply" (quick replies).
+  def update_rules
+    perform { client.update_account(@account_id, { 'rules' => merged_rules }) }
+  end
+
+  def apply_preset
+    perform { client.apply_preset(@account_id, params[:preset].to_s) }
+  end
+
+  def save_preset
+    perform { client.save_preset(name: params[:preset_name].to_s, description: params[:preset_description].to_s, account_id: @account_id) }
+  end
+
+  def delete_preset
+    perform { client.delete_preset(params[:preset].to_s) }
   end
 
   def remove_account
@@ -85,6 +107,10 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
 
   private
 
+  def current_tab
+    TABS.include?(params[:tab]) ? params[:tab] : 'overview'
+  end
+
   def client
     @client ||= DomliAi::BotClient.new
   end
@@ -92,14 +118,24 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   def account_attributes
     attributes = {}
     attributes['enabled'] = boolean(:enabled) if params.key?(:enabled)
-    attributes['answerPrices'] = boolean(:answer_prices) if params.key?(:answer_prices)
     attributes['mode'] = params[:mode].to_s if params.key?(:mode)
     attributes['instructions'] = params[:instructions].to_s if params.key?(:instructions)
     attributes['businessName'] = params[:business_name].to_s if params.key?(:business_name)
+    attributes['assistantName'] = params[:assistant_name].to_s if params.key?(:assistant_name)
+    attributes['unknownBehavior'] = params[:unknown_behavior].to_s if params.key?(:unknown_behavior)
+    attributes['model'] = params[:model].to_s if params.key?(:model)
+    attributes['languages'] = Array(params[:languages]).map(&:to_s) if params.key?(:languages_submitted)
     attributes['monthlyTokenCap'] = params[:monthly_token_cap].to_s.delete('.,').to_i if params.key?(:monthly_token_cap)
+    attributes['handoffMessage'] = { 'nl' => params[:handoff_message_nl].to_s, 'en' => params[:handoff_message_en].to_s } if params.key?(:handoff_message_nl)
+    attributes['promptTemplate'] = prompt_template if params.key?(:prompt_template)
     attributes['appointments'] = appointments_attributes if params.key?(:appointment_provider)
     attributes['handoffAgentId'] = handoff_agent_id if params.key?(:handoff_agent_id)
     attributes
+  end
+
+  # Empty or "reset" gives back the built-in text.
+  def prompt_template
+    params[:reset_prompt_template] == '1' ? '' : params[:prompt_template].to_s
   end
 
   # Blank clears it; otherwise it must be a member of this account (raises RecordNotFound, shown as an alert).
@@ -119,6 +155,38 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     }
   end
 
+  # The whole list is sent back to the service, which validates it and keeps the locked rules switched on.
+  def merged_rules
+    scope_types = params[:rule_scope] == 'reply' ? %w[reply] : %w[handoff appointment]
+    current = client.accounts.find { |account| account['id'] == @account_id }['rules']
+    posted = (params[:rules]&.to_unsafe_h || {}).values.index_by { |rule| rule['id'] }
+
+    rules = current.filter_map do |rule|
+      next rule unless scope_types.include?(rule['type']) && (edit = posted[rule['id']])
+      next if edit['delete'] == '1' && !rule['locked']
+
+      rule.merge(rule_edit(edit))
+    end
+    rules << new_rule if params.dig(:new_rule, :name).present? && scope_types.include?(params[:new_rule][:type].to_s)
+    rules
+  end
+
+  def rule_edit(edit)
+    {
+      'name' => edit['name'].to_s,
+      'enabled' => ActiveModel::Type::Boolean.new.cast(edit['enabled']),
+      'triggers' => edit['triggers'].to_s.split("\n").map(&:strip).compact_blank,
+      'maxWords' => edit['max_words'].to_s.to_i,
+      'reason' => edit['reason'].to_s,
+      'message' => { 'nl' => edit['message_nl'].to_s, 'en' => edit['message_en'].to_s }
+    }
+  end
+
+  def new_rule
+    fresh = params[:new_rule].to_unsafe_h
+    rule_edit(fresh.merge('enabled' => 'true')).merge('type' => fresh['type'].to_s)
+  end
+
   def boolean(key)
     ActiveModel::Type::Boolean.new.cast(params[key])
   end
@@ -131,7 +199,7 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   end
 
   def redirect_back_with(type, message)
-    redirect_to super_admin_domli_ai_path(account_id: @account_id), type => message
+    redirect_to super_admin_domli_ai_path(account_id: @account_id, tab: current_tab), type => message
   end
 
   def set_account_id

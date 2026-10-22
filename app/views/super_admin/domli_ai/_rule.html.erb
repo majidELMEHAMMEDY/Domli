@@ -1,0 +1,72 @@
+<%# locals: (rule:, index:) -%>
+<% prefix = "rules[#{index}]" %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<div class="space-y-3 rounded-lg border border-n-weak p-4">
+  <%= hidden_field_tag "#{prefix}[id]", rule['id'], id: nil %>
+  <div class="flex flex-wrap items-center justify-between gap-3">
+    <div class="min-w-0 flex-1">
+      <%= text_field_tag "#{prefix}[name]", rule['name'], maxlength: 80, id: nil, 'aria-label': t('super_admin.domli_ai.rule_name'), class: ui(:input, "font-medium") %>
+    </div>
+    <% if rule['locked'] %>
+      <%= hidden_field_tag "#{prefix}[enabled]", 'true', id: nil %>
+      <span class="text-label-small text-n-slate-11"><%= t('super_admin.domli_ai.rule_locked') %></span>
+    <% else %>
+      <%= hidden_field_tag "#{prefix}[enabled]", 'false', id: nil %>
+      <label class="flex items-center gap-2 text-body-main text-n-slate-12">
+        <%= check_box_tag "#{prefix}[enabled]", 'true', rule['enabled'], id: nil, class: ui(:checkbox) %>
+        <%= t('super_admin.domli_ai.rule_enabled') %>
+      </label>
+    <% end %>
+  </div>
+
+  <div>
+    <%= label_tag nil, t('super_admin.domli_ai.rule_triggers'), class: label %>
+    <%= text_area_tag "#{prefix}[triggers]", rule['triggers'].join("\n"), rows: 4, id: nil, class: ui(:input, "font-mono text-xs") %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.rule_triggers_help') %></p>
+  </div>
+
+  <% if rule['type'] != 'appointment' %>
+    <div class="grid gap-3 sm:grid-cols-2">
+      <div>
+        <%= label_tag nil, t('super_admin.domli_ai.rule_message_nl'), class: label %>
+        <%= text_area_tag "#{prefix}[message_nl]", rule['message']['nl'], rows: 3, maxlength: 1000, id: nil, class: ui(:input) %>
+      </div>
+      <div>
+        <%= label_tag nil, t('super_admin.domli_ai.rule_message_en'), class: label %>
+        <%= text_area_tag "#{prefix}[message_en]", rule['message']['en'], rows: 3, maxlength: 1000, id: nil, class: ui(:input) %>
+      </div>
+    </div>
+    <p class="<%= help %>"><%= t("super_admin.domli_ai.rule_message_help_#{rule['type']}") %></p>
+  <% else %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.rule_appointment_help') %></p>
+  <% end %>
+
+  <div class="grid gap-3 sm:grid-cols-2">
+    <% if rule['type'] == 'reply' %>
+      <div>
+        <%= label_tag nil, t('super_admin.domli_ai.rule_max_words'), class: label %>
+        <%= number_field_tag "#{prefix}[max_words]", rule['maxWords'], min: 0, max: 50, id: nil, class: ui(:input) %>
+        <p class="<%= help %>"><%= t('super_admin.domli_ai.rule_max_words_help') %></p>
+      </div>
+    <% else %>
+      <%= hidden_field_tag "#{prefix}[max_words]", rule['maxWords'], id: nil %>
+    <% end %>
+    <% if rule['type'] == 'handoff' %>
+      <div>
+        <%= label_tag nil, t('super_admin.domli_ai.rule_reason'), class: label %>
+        <%= text_field_tag "#{prefix}[reason]", rule['reason'], maxlength: 60, id: nil, class: ui(:input) %>
+        <p class="<%= help %>"><%= t('super_admin.domli_ai.rule_reason_help') %></p>
+      </div>
+    <% else %>
+      <%= hidden_field_tag "#{prefix}[reason]", rule['reason'], id: nil %>
+    <% end %>
+  </div>
+
+  <% unless rule['locked'] %>
+    <label class="flex items-center gap-2 text-label-small text-n-ruby-11">
+      <%= check_box_tag "#{prefix}[delete]", '1', false, id: nil, class: ui(:checkbox) %>
+      <%= t('super_admin.domli_ai.rule_delete') %>
+    </label>
+  <% end %>
+</div>

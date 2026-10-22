@@ -1,0 +1,3 @@
+<%# locals: (customer_id:) -%>
+<%= render "super_admin/domli_ai/rules_editor", customer_id: customer_id, scope: 'reply', types: %w[reply],
+           title: t('super_admin.domli_ai.quick_replies_title'), help: t('super_admin.domli_ai.quick_replies_help') %>

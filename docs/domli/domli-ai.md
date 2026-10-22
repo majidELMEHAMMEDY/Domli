@@ -22,11 +22,22 @@ Data note: the text of the conversation is sent to the AI provider. Add the prov
 
 ## 2. AI Assistant (answers customers, `domli-bot`)
 
-**Everything is managed in Super Admin -> Settings -> Assistant.** Nothing has to be edited in files after the one-time connection below.
+**Everything is managed in Super Admin -> Settings -> Assistant. No code change is ever needed to tune the assistant for a type of client.** The page has tabs:
 
-- **Connection to Claude (global):** paste the Anthropic API key (write-only: only the last 4 characters are shown afterwards), choose the model, and set the public address of the assistant service (for example `https://bot.domli.nl`).
-- **Per customer** (every Domli account is listed): "Set up the assistant" once, then switch on/off, draft or auto-reply, business name, monthly token limit (with this month's usage), "may mention prices", instructions, appointments (booking link; OnlineAfspraken fields are write-only), knowledge (text or web page).
-- **Connect to an inbox:** one button creates the "Domli AI" bot for that customer, passes its access token to the assistant service and attaches it to the chosen inbox. No tokens to copy.
+| Tab | What you set |
+|---|---|
+| **Overview** | On/off, draft or auto-reply, status and usage, **presets** (apply a preset, save the current settings as your own preset, delete presets) |
+| **Behavior** | Business and assistant name, languages (Dutch and/or English), what to do when it does not know the answer (hand over, or say so and offer help), your instructions, the standard hand-over message (Dutch/English), and under *Advanced* a model for this customer and the base rules text (placeholders `{{business}}`, `{{assistant_line}}`, `{{language_rule}}`, `{{unknown_rule}}`, `{{handoff_rule}}`) |
+| **Restrictions** | Who gets the handed-over conversations, and the **hand-over rules**: each rule has an on/off switch, trigger words and phrases (one per line, `*` at the end matches word beginnings), and its own message to the visitor. Built-in rules: prices, complaints (locked on), health (locked on), demo or trial request, asks for a person, appointments (booking link). Add your own rules. |
+| **Quick replies** | Instant answers without the AI (language question, greeting, thanks, and your own), with a word limit so they only catch short messages |
+| **Knowledge** | Text and web pages |
+| **Connection** | Connect to an inbox (one button), appointments |
+| **Limits** | Monthly token limit and this month's usage |
+| **Claude settings** | API key, default model, public address of the assistant service |
+
+Rules are checked in this order: hand-over rules, appointment rules, quick replies, then the AI. The rules and their default wording live in data (`domli-bot/src/defaults.json`, `presets.json`), not in code; a customer's own copy is stored in the service and edited on the page. Complaints and health rules can be edited but never switched off, for safety.
+
+**Presets:** built-in **Sales** (answers prices, hands over only demo/trial/"talk to a person"), **Local business** (prices and complaints to a person, appointments to the booking link) and **Support**. Applying a preset overwrites that customer's rules, languages, unknown-question policy, hand-over message and **instructions**; knowledge, limits and the inbox connection stay. Set up a customer the way you like, then *Save as preset* to reuse it for the next client of that type.
 
 The page talks to the assistant service from the server, so none of the secrets reach the browser.
 

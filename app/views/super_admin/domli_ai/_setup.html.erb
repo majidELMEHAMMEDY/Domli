@@ -1,0 +1,8 @@
+<%# locals: (customer_id:) -%>
+<%= form_with url: super_admin_domli_ai_enable_path, method: :post, class: "rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4" do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: current_tab %>
+  <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.not_set_up_title', name: @customer.name) %></h2>
+  <p class="text-label-small text-n-slate-11"><%= t('super_admin.domli_ai.not_set_up_help') %></p>
+  <%= render "button", label: t('super_admin.domli_ai.set_up'), submit: form %>
+<% end %>
