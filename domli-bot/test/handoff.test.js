@@ -128,9 +128,10 @@ test('handoffAgentId: set, list, clear, validate', () => {
 test('parseDecision tells a model handoff from an unreadable answer', () => {
   assert.deepEqual(parseDecision('{"action":"answer","reply":"Hoi"}'), { action: 'answer', reply: 'Hoi' });
   assert.deepEqual(parseDecision('{"action":"handoff","reply":""}'), { action: 'handoff', reply: '', reason: 'buiten de kennis' });
-  assert.equal(parseDecision('gewoon tekst').reason, 'ongeldig AI-antwoord');
+  assert.equal(parseDecision('{"action":"answer","reply":"half').reason, 'ongeldig AI-antwoord');
   assert.equal(parseDecision('{"action":"answer","reply":""}').reason, 'ongeldig AI-antwoord');
 });
+
 
 test('quick replies: instant answers from the customer rules, in the visitor language, never handed over', async () => {
   const run = async (mode, text) => {
@@ -175,6 +176,8 @@ test('askClaude reports why an answer was unusable and logs raw output only when
   assert.equal(out.result.decision.reason, 'AI-antwoord afgekapt');
   out = await ask(reply('refusal', null));
   assert.equal(out.result.decision.reason, 'AI weigerde te antwoorden');
+  out = await ask(reply('end_turn', '{"action":"answer","reply":"Het "Groei" pakket:\n- 39 euro"}'));
+  assert.equal(out.result.decision.action, 'answer', 'a multi-line answer with quotes is delivered, not handed over');
   out = await ask(reply('end_turn', '{"action":"answer","reply":"Yes, I speak English!"}'));
   assert.equal(out.result.decision.action, 'answer');
   assert.equal(out.logs.length, 0);

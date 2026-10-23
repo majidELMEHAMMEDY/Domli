@@ -51,17 +51,71 @@ ${knowledge}
 </kennis>`;
 }
 
-export function parseDecision(text) {
-  try {
-    const json = JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1));
-    if (json.action === 'answer' && typeof json.reply === 'string' && json.reply.trim()) {
-      return { action: 'answer', reply: json.reply.trim() };
-    }
-    if (json.action === 'handoff') return { action: 'handoff', reply: '', reason: 'buiten de kennis' };
-  } catch {
-    // fall through: anything unparseable is a handoff
+const INVALID = { action: 'handoff', reply: '', reason: 'ongeldig AI-antwoord' };
+
+// Models often put real line breaks inside the JSON string (a list of plans, for example), which strict JSON forbids.
+function escapeControlCharsInStrings(text) {
+  let out = '';
+  let inString = false;
+  let escaped = false;
+  for (const char of text) {
+    if (inString && !escaped && char === '\n') out += '\\n';
+    else if (inString && !escaped && char === '\r') out += '\\r';
+    else if (inString && !escaped && char === '\t') out += '\\t';
+    else out += char;
+    if (escaped) escaped = false;
+    else if (char === '\\' && inString) escaped = true;
+    else if (char === '"') inString = !inString;
   }
-  return { action: 'handoff', reply: '', reason: 'ongeldig AI-antwoord' };
+  return out;
+}
+
+function fromJson(json) {
+  if (!json || typeof json !== 'object') return null;
+  if (json.action === 'handoff') return { action: 'handoff', reply: '', reason: 'buiten de kennis' };
+  if (typeof json.reply === 'string' && json.reply.trim()) return { action: 'answer', reply: json.reply.trim() };
+  return null;
+}
+
+// Last resort for JSON that is broken in some other way (for example unescaped quotes inside the reply).
+function lenientReply(candidate) {
+  const start = /"reply"\s*:\s*"/.exec(candidate);
+  const end = candidate.lastIndexOf('"');
+  if (!start || end <= start.index + start[0].length) return '';
+  return candidate
+    .slice(start.index + start[0].length, end)
+    .replace(/\\"/g, '"')
+    .replace(/\\n/g, '\n')
+    .replace(/\\\\/g, '\\')
+    .trim();
+}
+
+// Reads the model's answer. Anything that clearly is an answer is delivered; only an unreadable or empty
+// answer becomes a handoff.
+export function parseDecision(text) {
+  const trimmed = String(text || '').trim();
+  const open = trimmed.indexOf('{');
+  const close = trimmed.lastIndexOf('}');
+
+  if (open !== -1 && close > open) {
+    const candidate = trimmed.slice(open, close + 1);
+    for (const attempt of [candidate, escapeControlCharsInStrings(candidate)]) {
+      try {
+        const decision = fromJson(JSON.parse(attempt));
+        if (decision) return decision;
+      } catch {
+        // try the next, more tolerant reading
+      }
+    }
+    const action = /"action"\s*:\s*"(answer|handoff)"/.exec(candidate)?.[1];
+    if (action === 'handoff') return { action: 'handoff', reply: '', reason: 'buiten de kennis' };
+    const reply = action === 'answer' ? lenientReply(candidate) : '';
+    return reply ? { action: 'answer', reply } : { ...INVALID };
+  }
+
+  // No JSON at all: the model just wrote its answer. A cut-off JSON start ("{...") is not an answer.
+  if (trimmed && !trimmed.startsWith('{') && !trimmed.startsWith('[')) return { action: 'answer', reply: trimmed.replace(/^```\w*\s*|\s*```$/g, '').trim() };
+  return { ...INVALID };
 }
 
 // Only the single customer message is sent, no names, emails or history.

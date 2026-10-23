@@ -70,11 +70,34 @@ test('appointment intent', () => {
   assert.equal(intent('Waar kan ik parkeren?'), false);
 });
 
-test('parseDecision treats garbage as handoff', () => {
-  assert.deepEqual(parseDecision('{"action":"answer","reply":"Hoi"}'), { action: 'answer', reply: 'Hoi' });
-  assert.equal(parseDecision('geen json').action, 'handoff');
-  assert.equal(parseDecision('{"action":"answer","reply":""}').action, 'handoff');
+test('parseDecision: readable answers are delivered, only unreadable ones become a handoff', () => {
+  const read = text => parseDecision(text);
+  assert.deepEqual(read('{"action":"answer","reply":"Hoi"}'), { action: 'answer', reply: 'Hoi' });
+  assert.equal(read('{"action":"handoff","reply":""}').action, 'handoff');
+  assert.equal(read('{"action":"answer","reply":""}').reason, 'ongeldig AI-antwoord');
+  assert.equal(read('{"action":"answer","reply":"half').reason, 'ongeldig AI-antwoord', 'cut-off JSON');
+  assert.equal(read('').reason, 'ongeldig AI-antwoord');
 });
+
+test('parseDecision tolerates the formats models really produce (the cause of needless handovers)', () => {
+  const answer = text => parseDecision(text);
+  // real line breaks inside the JSON string, for example a list of plans
+  const multiline = answer('{"action":"answer","reply":"Pakketten:\n- Start 25 euro\n- Groei 39 euro"}');
+  assert.equal(multiline.action, 'answer');
+  assert.match(multiline.reply, /Groei 39 euro/);
+  // unescaped quotes inside the reply
+  assert.equal(answer('{"action":"answer","reply":"Het "Groei" pakket kost 39 euro."}').reply, 'Het "Groei" pakket kost 39 euro.');
+  // code fence and text around the JSON
+  assert.equal(answer('Hier is mijn antwoord:\n```json\n{"action":"answer","reply":"Ja!"}\n```').reply, 'Ja!');
+  // no JSON at all: the model just answered
+  assert.equal(answer('Start kost 25 euro, Groei 39 en Plus 69 per maand.').action, 'answer');
+  // missing action but a reply, and a handoff without reply field
+  assert.equal(answer('{"reply":"Gewoon een antwoord"}').action, 'answer');
+  assert.equal(answer('{"action":"handoff"}').action, 'handoff');
+  // escaped newline still becomes a real line break
+  assert.equal(answer('{"action":"answer","reply":"Regel 1\\nRegel 2"}').reply, 'Regel 1\nRegel 2');
+});
+
 
 test('OnlineAfspraken signature matches the documented procedure', () => {
   const expected = createHash('sha256').update('id8methodgetResourceAPISECRETSALT').digest('hex');
