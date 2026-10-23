@@ -1,0 +1,76 @@
+<%# locals: (customer_id:) -%>
+<% card = 'rounded-xl border border-n-weak bg-n-solid-1 p-5 space-y-4' %>
+<% h2 = 'text-heading-2 text-n-slate-12' %>
+<% help = 'text-label-small text-n-slate-11' %>
+<% label = 'text-label text-n-slate-12' %>
+<% result = @test_result %>
+
+<%= form_with url: super_admin_domli_ai_test_path, method: :post, class: card do |form| %>
+  <%= form.hidden_field :account_id, value: customer_id %>
+  <%= form.hidden_field :tab, value: 'test' %>
+  <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.test_title') %></h2>
+  <p class="<%= help %>"><%= t('super_admin.domli_ai.test_help') %></p>
+  <div>
+    <%= label_tag :message, t('super_admin.domli_ai.test_message_label'), class: label %>
+    <%= text_area_tag :message, @test_message, rows: 3, maxlength: 1000, required: true, placeholder: t('super_admin.domli_ai.test_message_placeholder'), class: ui(:input) %>
+  </div>
+  <%= render "button", label: t('super_admin.domli_ai.test_run'), submit: form %>
+<% end %>
+
+<% if @test_error %>
+  <%= render "alert" do %><%= @test_error %><% end %>
+<% elsif result %>
+  <div class="<%= card %>">
+    <h2 class="<%= h2 %>"><%= t('super_admin.domli_ai.test_result_title') %></h2>
+    <p class="text-body-main font-medium text-n-slate-12"><%= t("super_admin.domli_ai.test_type_#{result['type'].tr('-', '_')}") %></p>
+    <dl class="grid gap-x-4 gap-y-2 sm:grid-cols-[12rem_1fr] text-body-main">
+      <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_language') %></dt>
+      <dd class="text-n-slate-12"><%= result['language'] %></dd>
+
+      <% if result['rule'] %>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_rule') %></dt>
+        <dd class="text-n-slate-12"><%= result['rule'] %></dd>
+      <% end %>
+
+      <% if result['type'] == 'handoff' %>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_reason') %></dt>
+        <dd class="text-n-slate-12"><%= result['reason'] %></dd>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_visitor_gets') %></dt>
+        <dd class="text-n-slate-12"><%= result['message'].presence || @bot_account['handoffMessage'][result['language']] %></dd>
+        <% if result['error'] %>
+          <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_error') %></dt>
+          <dd class="text-n-ruby-11"><%= result['error'] %></dd>
+        <% end %>
+      <% elsif result['type'] == 'ai' %>
+        <% decision = result['decision'] %>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_ai_decision') %></dt>
+        <dd class="text-n-slate-12"><%= t("super_admin.domli_ai.test_ai_decision_#{decision['action']}") %><%= " (#{decision['reason']})" if decision['reason'] %></dd>
+        <% if decision['reply'].present? %>
+          <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_visitor_gets') %></dt>
+          <dd class="whitespace-pre-line text-n-slate-12"><%= decision['reply'] %></dd>
+        <% end %>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_sources') %></dt>
+        <dd class="text-n-slate-12"><%= Array(result['knowledge']).presence&.join(', ') || t('super_admin.domli_ai.test_no_sources') %></dd>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_tokens') %></dt>
+        <dd class="text-n-slate-12"><%= result.dig('usage', 'input').to_i + result.dig('usage', 'output').to_i %> (<%= result['stopReason'] %>)</dd>
+      <% else %>
+        <dt class="text-n-slate-11"><%= t('super_admin.domli_ai.test_visitor_gets') %></dt>
+        <dd class="whitespace-pre-line text-n-slate-12"><%= result['reply'] %></dd>
+      <% end %>
+    </dl>
+
+    <% if result['type'] == 'ai' && result['raw'] %>
+      <details class="rounded-lg border border-n-weak p-3">
+        <summary class="cursor-pointer text-label text-n-slate-12"><%= t('super_admin.domli_ai.test_raw') %></summary>
+        <pre class="mt-2 whitespace-pre-wrap break-words text-xs text-n-slate-11"><%= result['raw'] %></pre>
+      </details>
+    <% end %>
+    <% if result['prompt'] %>
+      <details class="rounded-lg border border-n-weak p-3">
+        <summary class="cursor-pointer text-label text-n-slate-12"><%= t('super_admin.domli_ai.test_prompt') %></summary>
+        <pre class="mt-2 whitespace-pre-wrap break-words text-xs text-n-slate-11"><%= result['prompt'] %></pre>
+      </details>
+    <% end %>
+    <p class="<%= help %>"><%= t('super_admin.domli_ai.test_note') %></p>
+  </div>
+<% end %>

@@ -63,6 +63,16 @@
     <% end %>
   </div>
 
+  <% if rule['type'] == 'handoff' %>
+    <div>
+      <%= label_tag nil, t('super_admin.domli_ai.rule_prompt_hint'), class: label %>
+      <%= text_field_tag "#{prefix}[prompt_hint]", rule['promptHint'], maxlength: 200, id: nil, class: ui(:input) %>
+      <p class="<%= help %>"><%= t('super_admin.domli_ai.rule_prompt_hint_help') %></p>
+    </div>
+  <% else %>
+    <%= hidden_field_tag "#{prefix}[prompt_hint]", rule['promptHint'], id: nil %>
+  <% end %>
+
   <% unless rule['locked'] %>
     <label class="flex items-center gap-2 text-label-small text-n-ruby-11">
       <%= check_box_tag "#{prefix}[delete]", '1', false, id: nil, class: ui(:checkbox) %>

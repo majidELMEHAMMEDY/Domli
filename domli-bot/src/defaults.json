@@ -109,7 +109,7 @@
       "enabled": true,
       "reason": "prijs",
       "maxWords": 0,
-      "promptHint": "prijzen, offertes, facturen of betalingen",
+      "promptHint": "offertes op maat, kortingen, facturen, terugbetalingen of betalingsproblemen",
       "disabledNote": "Je mag prijzen en pakketten noemen die in de kennis staan. Offertes op maat, facturen en betalingsproblemen gaan wel naar een mens.",
       "triggers": [
         "prijs",
@@ -327,5 +327,8 @@
         "en": "You're welcome! Is there anything else I can help you with?"
       }
     }
-  ]
+  ],
+  "legacyHints": {
+    "prices": "prijzen, offertes, facturen of betalingen"
+  }
 }

@@ -33,9 +33,12 @@ Data note: the text of the conversation is sent to the AI provider. Add the prov
 | **Knowledge** | Text and web pages |
 | **Connection** | Connect to an inbox (one button), appointments |
 | **Limits** | Monthly token limit and this month's usage |
+| **Test** | Type a visitor message and see what the assistant would do: which rule catches it, the language it detected, what the visitor would get, and for AI answers the raw answer, knowledge used, token count and the full instruction sent to the AI. Nothing is sent to anyone and tests are not counted. Use this first whenever the assistant does something unexpected. |
 | **Claude settings** | API key, default model, public address of the assistant service |
 
 Rules are checked in this order: hand-over rules, appointment rules, quick replies, then the AI. The rules and their default wording live in data (`domli-bot/src/defaults.json`, `presets.json`), not in code; a customer's own copy is stored in the service and edited on the page. Complaints and health rules can be edited but never switched off, for safety.
+
+**Two places decide whether a topic is handed over:** the rule's words (checked before the AI) and its *Description for the AI* (what the AI is told to hand over). If you narrow a rule's words, also adjust its description, otherwise the AI may still hand over. To let the assistant answer a topic completely, switch the rule off.
 
 **Presets:** built-in **Sales** (answers prices, hands over only demo/trial/"talk to a person"), **Local business** (prices and complaints to a person, appointments to the booking link) and **Support**. Applying a preset overwrites that customer's rules, languages, unknown-question policy, hand-over message and **instructions**; knowledge, limits and the inbox connection stay. Set up a customer the way you like, then *Save as preset* to reuse it for the next client of that type.
 

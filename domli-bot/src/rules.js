@@ -101,8 +101,11 @@ export function normalizeRules(input) {
 }
 
 // Accounts without their own rules start from the defaults. The two old switches still work as a starting point.
+const refreshLegacyHints = rules =>
+  rules.map(rule => (DEFAULTS.legacyHints?.[rule.id] === rule.promptHint ? { ...rule, promptHint: DEFAULTS.rules.find(base => base.id === rule.id).promptHint } : rule));
+
 export function effectiveRules(account) {
-  if (Array.isArray(account.rules)) return enforceLocked(account.rules);
+  if (Array.isArray(account.rules)) return refreshLegacyHints(enforceLocked(account.rules));
   const rules = clone(DEFAULTS.rules);
   const prices = rules.find(rule => rule.id === 'prices');
   if (prices && account.answerPrices === true) prices.enabled = false;

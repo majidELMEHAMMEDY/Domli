@@ -94,7 +94,7 @@ test('prompt is built from the customer settings: languages, unknown behaviour, 
   let p = buildSystemPrompt(base, 'kennis');
   assert.match(p, /klantenservice-assistent van Salon Mila/);
   assert.match(p, /Nederlands of Engels/);
-  assert.match(p, /Kies "handoff" ook als het gaat om: een klacht; gezondheid of medische zaken; prijzen, offertes, facturen of betalingen/);
+  assert.match(p, /Kies "handoff" ook als het gaat om: een klacht; gezondheid of medische zaken; offertes op maat, kortingen, facturen, terugbetalingen of betalingsproblemen/);
   assert.match(p, /kies dan "handoff"/);
   p = buildSystemPrompt({ ...base, languages: ['nl'], assistantName: 'Mila', unknownBehavior: 'say_unknown' }, 'k');
   assert.match(p, /Je heet Mila\./);
@@ -106,7 +106,7 @@ test('prompt is built from the customer settings: languages, unknown behaviour, 
   // prices rule off: its note replaces the topic
   const open = effectiveRules({ answerPrices: true });
   p = buildSystemPrompt({ ...base, rules: open }, 'k');
-  assert.ok(!/prijzen, offertes, facturen of betalingen\./.test(p));
+  assert.ok(!/offertes op maat, kortingen, facturen, terugbetalingen of betalingsproblemen\./.test(p));
   assert.match(p, /prijzen en pakketten noemen die in de kennis staan/);
   // a custom template with placeholders; unknown placeholders stay visible
   p = buildSystemPrompt({ ...base, promptTemplate: 'Hallo {{business}}. {{language_rule}} {{onbekend}}' }, 'k');
@@ -208,4 +208,45 @@ test('presets: built-in list, apply to a customer, save and delete a custom one'
   assert.equal((await api('/presets/sales', 'DELETE')).status, 400);
   assert.equal((await api('/presets/Kapper', 'DELETE')).status, 200);
   assert.ok(!(await (await api('/presets')).json()).presets.some(p => p.name === 'Kapper'));
+});
+
+test('stored rules that still carry the old built-in price hint are upgraded, custom hints are left alone', () => {
+  const stored = hint => effectiveRules({ rules: [{ id: 'prices', type: 'handoff', name: 'P', enabled: true, triggers: ['x'], promptHint: hint }] }).find(r => r.id === 'prices').promptHint;
+  assert.equal(stored('prijzen, offertes, facturen of betalingen'), DEFAULTS.rules.find(r => r.id === 'prices').promptHint);
+  assert.equal(stored('mijn eigen tekst'), 'mijn eigen tekst');
+});
+
+test('Test tab API: shows the decision and the matching rule without sending anything or counting usage', async () => {
+  writeFileSync(process.env.ACCOUNTS_FILE, JSON.stringify({ 1: { businessName: 'Domli', enabled: false, chatwootBotToken: 'TOKEN-ABCDEFGH' } }));
+  const { tokensUsed } = await import('../src/usage.js');
+  const usageBefore = tokensUsed(1);
+  const test = async message => (await api('/accounts/1/test', 'POST', { message })).json();
+  let { result } = await test('Ik heb een klacht over mijn bestelling');
+  assert.deepEqual([result.type, result.rule, result.reason, result.language], ['handoff', 'Complaints', 'klacht', 'nl']);
+  ({ result } = await test('hey'));
+  assert.deepEqual([result.type, result.rule], ['quick-reply', 'Greeting']);
+  assert.match(result.reply, /Hello/);
+  ({ result } = await test('what are your prices'));
+  assert.equal(result.rule, 'Prices and payments');
+  assert.equal((await api('/accounts/1/test', 'POST', { message: '   ' })).status, 400);
+  assert.equal((await api('/accounts/99/test', 'POST', { message: 'hi' })).status, 404);
+
+  // a question that reaches the AI (stubbed): decision, raw answer, sources and the exact prompt are returned
+  const Anthropic = (await import('@anthropic-ai/sdk')).default;
+  const original = Anthropic.Messages.prototype.create;
+  Anthropic.Messages.prototype.create = async () => ({ stop_reason: 'end_turn', content: [{ type: 'text', text: '{"action":"answer","reply":"Start kost 25 euro."}' }], usage: { input_tokens: 10, output_tokens: 5 } });
+  try {
+    await api('/accounts/1/docs', 'POST', { title: 'Prijzen', text: 'Start kost 25 euro per maand.' });
+    await api('/accounts/1', 'PATCH', { rules: DEFAULTS.rules.map(r => (r.id === 'prices' ? { ...r, enabled: false } : r)) });
+    ({ result } = await test('Vertel me over de pakketten'));
+    assert.equal(result.type, 'ai');
+    assert.equal(result.decision.action, 'answer');
+    assert.equal(result.raw, '{"action":"answer","reply":"Start kost 25 euro."}');
+    assert.deepEqual(result.knowledge, ['Prijzen']);
+    assert.match(result.prompt, /<kennis>[\s\S]*Start kost 25 euro/);
+    assert.match(result.prompt, /prijzen en pakketten noemen die in de kennis staan/);
+  } finally {
+    Anthropic.Messages.prototype.create = original;
+  }
+  assert.equal(tokensUsed(1), usageBefore, 'dry runs are not counted as usage');
 });

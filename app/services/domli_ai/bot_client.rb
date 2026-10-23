@@ -28,6 +28,10 @@ class DomliAi::BotClient
     request(:delete, "/accounts/#{account_id}")
   end
 
+  def test_message(account_id, message)
+    request(:post, "/accounts/#{account_id}/test", { message: message }).fetch('result')
+  end
+
   def presets
     request(:get, '/presets').fetch('presets')
   end

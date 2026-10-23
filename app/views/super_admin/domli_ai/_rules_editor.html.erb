@@ -51,6 +51,10 @@
         <%= text_field_tag 'new_rule[reason]', nil, id: 'new_rule_reason', maxlength: 60, class: ui(:input) %>
       </div>
       <div>
+        <%= label_tag 'new_rule_prompt_hint', t('super_admin.domli_ai.rule_prompt_hint'), class: label %>
+        <%= text_field_tag 'new_rule[prompt_hint]', nil, id: 'new_rule_prompt_hint', maxlength: 200, class: ui(:input) %>
+      </div>
+      <div>
         <%= label_tag 'new_rule_max_words', t('super_admin.domli_ai.rule_max_words'), class: label %>
         <%= number_field_tag 'new_rule[max_words]', 0, id: 'new_rule_max_words', min: 0, max: 50, class: ui(:input) %>
       </div>

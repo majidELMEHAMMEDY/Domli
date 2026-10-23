@@ -93,6 +93,8 @@ export async function askClaude({ knowledge, message, ...config }) {
   }
   return {
     decision,
+    raw: text,
+    stopReason: response.stop_reason,
     usage: { input: response.usage.input_tokens, output: response.usage.output_tokens },
   };
 }

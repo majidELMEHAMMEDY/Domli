@@ -778,6 +778,7 @@ Rails.application.routes.draw do
       put 'domli_ai/settings', to: 'domli_ai#update_settings', as: :domli_ai_settings
       post 'domli_ai/enable', to: 'domli_ai#enable_account', as: :domli_ai_enable
       patch 'domli_ai/rules', to: 'domli_ai#update_rules', as: :domli_ai_rules
+      post 'domli_ai/test', to: 'domli_ai#test_message', as: :domli_ai_test
       post 'domli_ai/preset', to: 'domli_ai#apply_preset', as: :domli_ai_preset
       post 'domli_ai/presets', to: 'domli_ai#save_preset', as: :domli_ai_presets
       post 'domli_ai/presets/delete', to: 'domli_ai#delete_preset', as: :domli_ai_preset_delete

@@ -2,7 +2,7 @@
 # quick replies, knowledge, inbox connection and limits. The assistant itself runs in domli-bot; this page is its front door.
 class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   BOT_NAME = 'Domli AI'.freeze
-  TABS = %w[overview behavior restrictions quick_replies knowledge connection limits global].freeze
+  TABS = %w[overview behavior restrictions quick_replies knowledge connection limits test global].freeze
   RULE_FIELDS = %w[id type name reason promptHint disabledNote locked].freeze
 
   before_action :ensure_configured
@@ -10,23 +10,19 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   helper_method :current_tab
 
   def show
-    @customers = Account.order(:id)
-    @customer = @customers.find_by(id: params[:account_id]) || @customers.first
-    @settings = client.settings
-    @bot_accounts = client.accounts
-    @bot_account = @bot_accounts.find { |account| account['id'] == @customer&.id.to_s }
-    @presets = client.presets
-    @documents = @bot_account && current_tab == 'knowledge' ? client.documents(@customer.id) : []
-    @inboxes = @customer ? @customer.inboxes.includes(:agent_bot).order(:id) : []
-    @agents = @customer ? @customer.users.order(:name) : []
-  rescue DomliAi::BotClient::Error => e
-    @error = e.message
-    @customers = Account.none
-    @bot_accounts = []
-    @presets = []
-    @documents = []
-    @inboxes = []
-    @agents = []
+    load_page
+  end
+
+  # Shows what the assistant would do with a message, without sending anything to anyone.
+  def test_message
+    @test_message = params[:message].to_s
+    begin
+      @test_result = client.test_message(@account_id, @test_message)
+    rescue DomliAi::BotClient::Error => e
+      @test_error = e.message
+    end
+    load_page
+    render :show
   end
 
   def update_settings
@@ -107,6 +103,26 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
 
   private
 
+  def load_page
+    @customers = Account.order(:id)
+    @customer = @customers.find_by(id: params[:account_id]) || @customers.first
+    @settings = client.settings
+    @bot_accounts = client.accounts
+    @bot_account = @bot_accounts.find { |account| account['id'] == @customer&.id.to_s }
+    @presets = client.presets
+    @documents = @bot_account && current_tab == 'knowledge' ? client.documents(@customer.id) : []
+    @inboxes = @customer ? @customer.inboxes.includes(:agent_bot).order(:id) : []
+    @agents = @customer ? @customer.users.order(:name) : []
+  rescue DomliAi::BotClient::Error => e
+    @error = e.message
+    @customers = Account.none
+    @bot_accounts = []
+    @presets = []
+    @documents = []
+    @inboxes = []
+    @agents = []
+  end
+
   def current_tab
     TABS.include?(params[:tab]) ? params[:tab] : 'overview'
   end
@@ -178,6 +194,7 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
       'triggers' => edit['triggers'].to_s.split("\n").map(&:strip).compact_blank,
       'maxWords' => edit['max_words'].to_s.to_i,
       'reason' => edit['reason'].to_s,
+      'promptHint' => edit['prompt_hint'].to_s,
       'message' => { 'nl' => edit['message_nl'].to_s, 'en' => edit['message_en'].to_s }
     }
   end

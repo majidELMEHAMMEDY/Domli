@@ -7,7 +7,7 @@ import { env, listAccounts, updateAccount, createAccount, deleteAccount, mutateA
 import { listPresets, applyPreset, savePreset, deletePreset } from './presets.js';
 import { publicSettings, saveSettings } from './settings.js';
 import { tokensUsed } from './usage.js';
-import { handleEvent } from './handler.js';
+import { handleEvent, dryRun } from './handler.js';
 import { listDocs, addDoc, deleteDoc } from './knowledge/store.js';
 import { fetchPage as defaultFetchPage } from './knowledge/fetchPage.js';
 
@@ -112,6 +112,12 @@ async function adminApi(req, res, pathname, deps) {
     if (parts.length === 4 && req.method === 'DELETE') {
       deleteAccount(accountId);
       return json(res, 200, { ok: true });
+    }
+    if (parts.length === 5 && parts[4] === 'test' && req.method === 'POST') {
+      const body = JSON.parse((await readBody(req)) || '{}');
+      const message = String(body.message || '').trim().slice(0, 1000);
+      if (!message) throw new Error('Typ een bericht om te testen');
+      return json(res, 200, { result: await dryRun(accountId, message) });
     }
     if (parts.length === 5 && parts[4] === 'preset' && req.method === 'POST') {
       const body = JSON.parse((await readBody(req)) || '{}');
