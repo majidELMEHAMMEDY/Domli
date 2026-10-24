@@ -24,9 +24,14 @@ module Llm::Config
       context = RubyLLM.context do |config|
         config.openai_api_key = api_key
         config.openai_api_base = api_base
+        config.anthropic_api_key = anthropic_api_key
       end
 
       yield context
+    end
+
+    def anthropic_api_key
+      InstallationConfig.find_by(name: 'CAPTAIN_ANTHROPIC_API_KEY')&.value
     end
 
     private

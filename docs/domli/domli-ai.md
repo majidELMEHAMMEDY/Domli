@@ -5,7 +5,7 @@ Domli AI has two parts. Both were built from scratch for Domli (no code from the
 ## 1. Writing assistant (inside the dashboard)
 Rewrite and change tone, summarize a conversation, suggest a reply, ask a question about a conversation. This is code that ships in the MIT core. In the interface it is now called **Domli AI**.
 
-It is **off by default**, because it needs an AI key. It talks to an OpenAI-style API and always calls `<endpoint>/v1/chat/completions`, with models from `config/llm.yml` (default `gpt-4.1-mini`). Providers whose compatible URL does not end in `/v1` (for example Google's Gemini endpoint) do **not** work without a code change.
+It is **off by default**, because it needs an AI key. By default it uses **Claude Haiku 4.5** with the Anthropic key `CAPTAIN_ANTHROPIC_API_KEY` (Super Admin -> Settings -> Domli AI -> "Anthropic (Claude) API Key"). OpenAI models from `config/llm.yml` still work with `CAPTAIN_OPEN_AI_API_KEY` if you select one for a feature.
 
 Turn it on (run on the VPS; replace the key):
 ```bash
@@ -34,7 +34,7 @@ Data note: the text of the conversation is sent to the AI provider. Add the prov
 | **Connection** | Connect to an inbox (one button), appointments |
 | **Limits** | Monthly token limit and this month's usage |
 | **Test** | Type a visitor message and see what the assistant would do: which rule catches it, the language it detected, what the visitor would get, and for AI answers the raw answer, knowledge used, token count and the full instruction sent to the AI. Nothing is sent to anyone and tests are not counted. Use this first whenever the assistant does something unexpected. |
-| **Writing assistant** | Switch the dashboard's AI writing assistant (sparkle button: suggest a reply, rewrite, summarize) on or off per customer. Needs an OpenAI key (Settings -> Domli AI). Applies to all agents of a customer, not to single agents. |
+| **Writing assistant** | Switch the dashboard's AI writing assistant (sparkle button: suggest a reply, rewrite, summarize) on or off per customer. Needs a Claude key (Settings -> Domli AI). Applies to all agents of a customer, not to single agents. |
 | **Claude settings** | API key, default model, public address of the assistant service |
 
 Rules are checked in this order: hand-over rules, appointment rules, quick replies, then the AI. The rules and their default wording live in data (`domli-bot/src/defaults.json`, `presets.json`), not in code; a customer's own copy is stored in the service and edited on the page. Complaints and health rules can be edited but never switched off, for safety.

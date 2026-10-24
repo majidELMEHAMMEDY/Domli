@@ -21,6 +21,7 @@ Domli-only files (no merge conflicts): `landing/` (domli.nl PHP site), `branding
 | `config/features.yml` (display names), `*/i18n/locale/{en,nl}/*.json`, `config/locales/{en,nl}.yml` | "Captain" renamed to "Domli AI" in visible strings | Domli AI branding of the built-in AI writing assistant. |
 | `app/helpers/super_admin/features.yml` | `captain` entry name/description -> "Domli AI" | Super admin sidebar and settings card label. |
 | `config/installation_config.yml` | "Captain" -> "Domli AI" in display titles and descriptions | Labels on the super admin Domli AI settings page. |
+| `lib/llm/config.rb`, `lib/captain/base_task_service.rb`, `app/models/installation_config.rb`, `app/controllers/super_admin/app_configs_controller.rb`, `config/installation_config.yml`, `config/llm.yml` | Anthropic key `CAPTAIN_ANTHROPIC_API_KEY` passed to ruby_llm; Claude model ids fixed to registry ids; `claude-haiku-4-5` enabled and default for the `editor` feature | The writing assistant runs on the same Claude API as the bot, no OpenAI account needed. |
 | `config/routes.rb` | 10 routes under `super_admin` for `domli_ai` | Super admin page that manages the Domli AI assistant. |
 | `app/helpers/super_admin/navigation_helper.rb` | "Assistant" entry next to the Domli AI settings; `settings_open?` includes `domli_ai` | Menu entry for that page. |
 | `.env.example` | `DEFAULT_LOCALE=nl` | Dutch default. |

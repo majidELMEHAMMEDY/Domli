@@ -4,7 +4,7 @@
   <h2 class="text-heading-2 text-n-slate-12"><%= t('super_admin.domli_ai.writing_title') %></h2>
   <p class="text-body-main text-n-slate-12"><%= t('super_admin.domli_ai.writing_help') %></p>
   <p class="<%= help %>">
-    <% if openai_key_set? %>
+    <% if writing_key_set? %>
       <%= t('super_admin.domli_ai.writing_key_ok') %>
     <% else %>
       <%= t('super_admin.domli_ai.writing_key_missing') %>

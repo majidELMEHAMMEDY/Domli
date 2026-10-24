@@ -10,7 +10,7 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
 
   before_action :ensure_configured, except: [:update_writing_assistant]
   before_action :set_account_id, except: [:show, :update_settings, :update_writing_assistant]
-  helper_method :current_tab, :writing_customers, :openai_key_set?
+  helper_method :current_tab, :writing_customers, :writing_key_set?
 
   def show
     load_page
@@ -144,8 +144,8 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     Account.order(:id)
   end
 
-  def openai_key_set?
-    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value.present?
+  def writing_key_set?
+    Llm::Config.anthropic_api_key.present?
   end
 
   def current_tab

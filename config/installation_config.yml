@@ -198,6 +198,11 @@
   description: 'Optional GitHub token for resolving the latest commit of public Domli AI toolsets. Raises the GitHub API rate limit; no permissions are needed.'
   locked: false
   type: secret
+- name: CAPTAIN_ANTHROPIC_API_KEY
+  display_title: 'Anthropic (Claude) API Key'
+  description: 'The API key used for the Domli AI writing assistant (suggest reply, rewrite, summarize) when a Claude model is selected.'
+  locked: false
+  type: secret
 - name: CAPTAIN_OPEN_AI_API_KEY
   display_title: 'OpenAI API Key'
   description: 'The API key used to authenticate requests to OpenAI services for Domli AI.'
