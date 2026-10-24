@@ -1,7 +1,10 @@
 <% content_for(:title) { t('super_admin.domli_ai.title') } %>
 
 <%= render "section", title: t('super_admin.domli_ai.title'), description: t('super_admin.domli_ai.description'), icon: 'i-lucide-bot' do %>
-  <% if !@configured %>
+  <% if current_tab == 'writing' %>
+    <%= render "super_admin/domli_ai/tabs", customer_id: nil %>
+    <%= render "super_admin/domli_ai/writing" %>
+  <% elsif !@configured %>
     <%= render "alert" do %><%= t('super_admin.domli_ai.not_configured') %><% end %>
   <% elsif @error %>
     <%= render "alert" do %><%= @error %><% end %>
@@ -9,7 +12,7 @@
     <% customer_id = @customer&.id %>
     <%= render "super_admin/domli_ai/tabs", customer_id: customer_id %>
 
-    <% if current_tab == 'global' %>
+    <% if SuperAdmin::DomliAiController::GLOBAL_TABS.include?(current_tab) %>
       <%= render "super_admin/domli_ai/global", customer_id: customer_id %>
     <% elsif @customer.nil? %>
       <%= render "alert" do %><%= t('super_admin.domli_ai.no_accounts') %><% end %>

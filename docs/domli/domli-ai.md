@@ -34,6 +34,7 @@ Data note: the text of the conversation is sent to the AI provider. Add the prov
 | **Connection** | Connect to an inbox (one button), appointments |
 | **Limits** | Monthly token limit and this month's usage |
 | **Test** | Type a visitor message and see what the assistant would do: which rule catches it, the language it detected, what the visitor would get, and for AI answers the raw answer, knowledge used, token count and the full instruction sent to the AI. Nothing is sent to anyone and tests are not counted. Use this first whenever the assistant does something unexpected. |
+| **Writing assistant** | Switch the dashboard's AI writing assistant (sparkle button: suggest a reply, rewrite, summarize) on or off per customer. Needs an OpenAI key (Settings -> Domli AI). Applies to all agents of a customer, not to single agents. |
 | **Claude settings** | API key, default model, public address of the assistant service |
 
 Rules are checked in this order: hand-over rules, appointment rules, quick replies, then the AI. The rules and their default wording live in data (`domli-bot/src/defaults.json`, `presets.json`), not in code; a customer's own copy is stored in the service and edited on the page. Complaints and health rules can be edited but never switched off, for safety.

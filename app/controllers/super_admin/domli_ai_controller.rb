@@ -2,12 +2,15 @@
 # quick replies, knowledge, inbox connection and limits. The assistant itself runs in domli-bot; this page is its front door.
 class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
   BOT_NAME = 'Domli AI'.freeze
-  TABS = %w[overview behavior restrictions quick_replies knowledge connection limits test global].freeze
+  TABS = %w[overview behavior restrictions quick_replies knowledge connection limits test writing global].freeze
+  # These tabs are not about one customer's assistant, so they have no customer picker.
+  GLOBAL_TABS = %w[writing global].freeze
+  WRITING_FLAG = 'captain_tasks'.freeze
   RULE_FIELDS = %w[id type name reason promptHint disabledNote locked].freeze
 
-  before_action :ensure_configured
-  before_action :set_account_id, except: [:show, :update_settings]
-  helper_method :current_tab
+  before_action :ensure_configured, except: [:update_writing_assistant]
+  before_action :set_account_id, except: [:show, :update_settings, :update_writing_assistant]
+  helper_method :current_tab, :writing_customers, :openai_key_set?
 
   def show
     load_page
@@ -33,6 +36,20 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     attributes['model'] = params[:model].to_s if params.key?(:model)
     attributes['publicUrl'] = params[:public_url].to_s if params.key?(:public_url)
     perform { client.update_settings(attributes) }
+  end
+
+  # Switches the AI writing assistant (suggest a reply, rewrite, summarize) on or off per customer.
+  def update_writing_assistant
+    chosen = (params[:writing_assistant]&.to_unsafe_h || {}).select { |id, _| id.to_s.match?(/\A\d+\z/) }
+    Account.where(id: chosen.keys).find_each do |account|
+      if ActiveModel::Type::Boolean.new.cast(chosen[account.id.to_s])
+        account.enable_features(WRITING_FLAG)
+      else
+        account.disable_features(WRITING_FLAG)
+      end
+      account.save!
+    end
+    redirect_to super_admin_domli_ai_path(tab: 'writing'), notice: 'Opgeslagen.'
   end
 
   def enable_account
@@ -121,6 +138,14 @@ class SuperAdmin::DomliAiController < SuperAdmin::ApplicationController
     @documents = []
     @inboxes = []
     @agents = []
+  end
+
+  def writing_customers
+    Account.order(:id)
+  end
+
+  def openai_key_set?
+    InstallationConfig.find_by(name: 'CAPTAIN_OPEN_AI_API_KEY')&.value.present?
   end
 
   def current_tab
